@@ -1,0 +1,35 @@
+#!/bin/bash
+
+WITHSMALL=0
+WITHWAVDEMUX=1
+
+for i in $@ ; do 
+	case $i in
+	--help)
+		echo "flags for configure:"
+		echo " "
+		echo "--with-small    Build fuse-vdv with optimization for lots of "
+		echo "                small files (experimental)"
+		echo " "
+	;; 
+	--with-small)
+		WITHSMALL=1
+	;;
+	--without-wavdemux)
+		WITHWAVDEMUX=0
+	;;
+	esac
+done
+
+echo "#ifndef CONFIG_H" > config.h
+echo "#define CONFIG_H" >> config.h
+
+for i in WITHSMALL WITHWAVDEMUX ; do
+	eval cvar=\$$i
+	if [ "x$cvar" == "x1" ] ; then  
+		echo "#define CONFIG_$i " >> config.h
+	fi
+done
+
+echo "#endif" >> config.h
+

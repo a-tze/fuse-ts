@@ -1,0 +1,50 @@
+fuse-ts (2015.10.03.1) stable; urgency=low
+
+  * bugfix shotcut files
+
+ -- Matthias Hunstock <atze@fem.tu-ilmenau.de>  Sat, 03 Oct 2015 01:35:32 +0200
+
+fuse-ts (2015.01.20.1) stable; urgency=low
+
+  * add support for win32 shotcut by having additional cmdline options to build dedicated path
+
+ -- Matthias Hunstock <atze@fem.tu-ilmenau.de>  Tue, 20 Jan 2015 01:03:44 +0100
+
+fuse-ts (2014.12.14.1) stable; urgency=low
+
+  * Bump kdenlive- and mlt versions so that recent kdenlive's don't complain anymore
+  * Merge slice-keeping from fuse-vdv
+
+ -- Peter Körner <peter@mazdermind.de>  Sun, 14 Dec 2014 22:02:23 +0100
+
+fuse-ts (2014.11.08.1) stable; urgency=low
+
+  * Merge Shotcut support from fuse-vdv
+  * Merge filebuffer enhancements from fuse-vdv
+
+ -- Matthias Hunstock <atze@fem.tu-ilmenau.de>  Sat, 08 Nov 2014 19:02:23 +0100
+
+fuse-ts (2014.07.28.1) stable; urgency=low
+
+  * Fix build issues on Ubuntu
+
+ -- Matthias Hunstock <atze@fem.tu-ilmenau.de>  Mon, 28 Jul 2014 14:45:19 +0200
+
+fuse-ts (2014-07-13-1) stable; urgency=low
+
+  * Enhancement: log errors to STDERR before backgrounding
+
+ -- Matthias Hunstock <atze@fem.tu-ilmenau.de>  Sun, 13 Jul 2014 11:58:23 +0200
+
+fuse-ts (2014-05-27-1) stable; urgency=low
+
+  * Enhancement: improved support for single source files by making prefix really optional
+
+ -- Matthias Hunstock <atze@fem.tu-ilmenau.de>  Tue, 27 May 2014 15:37:11 +0200
+
+fuse-ts (2013-12-13-1) stable; urgency=low
+
+  * Multithread support.
+
+ -- Matthias Hunstock <atze@fem.tu-ilmenau.de>  Fri, 13 Dec 2013 22:19:24 +0100
+

@@ -1,0 +1,12 @@
+Source: fuse-vdv
+Maintainer: Matthias Hunstock <atze@fem.tu-ilmenau.de>
+Section: video
+Priority: optional
+Standards-Version: 3.9.4
+Build-Depends: debhelper (>= 9), libmxml-dev, libfuse-dev
+
+Package: fuse-vdv
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: FUSE filesystem for merging DV files
+ FUSE filesystem for merging DV files.
