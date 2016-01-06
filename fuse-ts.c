@@ -742,6 +742,7 @@ int main (int argc, char *argv[]) {
 	int argc_new = argc;
 	char **argv_new = argv;
 	parse_opts (&argc_new, &argv_new);
+	time(&crtime);
 	sourcefiles = init_sourcefiles ();
 //	sourcefiles = cut_and_merge (sourcefiles, 0, lastframe, NULL, NULL, &sourcefiles_c);
 	update_cutmarks_from_numbers ();
