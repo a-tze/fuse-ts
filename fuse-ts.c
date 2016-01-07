@@ -249,7 +249,7 @@ static int ts_truncate (const char *path, off_t size) {
 		return 0;
 	case INDEX_SHOTCUT:
 	case INDEX_SHOTCUT_WIN:
-		truncate_shotcut_project_file();
+		if (size == 0 ) truncate_shotcut_project_file();
 		return 0;
 	case INDEX_INFRAME:
 		inframe_str_length = 0;
