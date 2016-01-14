@@ -146,6 +146,23 @@ size_t safe_strlen (const char *str) {
 	return strlen (str);
 }
 
+size_t truncate_buffer (char ** target, size_t bufferlength, size_t newbufferlength) {
+	// let shrinking happen without reallocation, growing will trigger new malloc, even if it would fit
+	if (newbufferlength <= bufferlength) {
+		return newbufferlength;
+	}
+	char *old = *target;
+	*target = (char *) calloc (1, newbufferlength);
+	if (!*target) {
+		// malloc failed
+		*target = old;
+		return -EACCES;
+	}
+	memcpy (*target, old, bufferlength);
+	free (old);
+	return newbufferlength;
+}
+
 size_t write_to_buffer (const char *buffer, size_t size, off_t offset, char **target, size_t * bufferlength) {
 	DEPRECATED();
 	debug_printf ("write_to_buffer:  writing %d bytes to %p with offset %" PRId64 " and bufferlength %d\n", size, *target, offset, *bufferlength);
@@ -161,12 +178,12 @@ size_t write_to_buffer (const char *buffer, size_t size, off_t offset, char **ta
 		memset (*target, 0, writebuffersize);
 		writebuffersize--;
 	} else if ((offset + size) > writebuffersize) {
-		char *old = *target;
-		size_t l = writebuffersize;
 		writebuffersize = offset + size + 1;
-		*target = (char *) malloc (writebuffersize);
-		memcpy (*target, old, l);
-		free (old);
+		size_t l = truncate_buffer(target, *bufferlength, writebuffersize);
+		if (!l || l < writebuffersize) {
+			error_printf ("truncating buffer failed!\n");
+			return -EACCES;
+		}
 		writebuffersize--;
 	}
 	assert (writebuffersize >= offset + size);

@@ -87,8 +87,16 @@ void open_shotcut_project_file (const char *movie_path, int frames, int blanklen
 	}
 }
 
-void truncate_shotcut_project_file() {
-	if (sc_writebuffer != NULL) filebuffer__truncate(sc_writebuffer, 0);
+int truncate_shotcut_project_file(size_t size) {
+	if (sc_writebuffer != NULL)  {
+		size_t l = filebuffer__truncate(sc_writebuffer, size);
+		if (l < 0 || l < size) {
+			return -EIO;
+		}
+	} else {
+		sc_writebuffer = filebuffer__new();
+	}
+	return 0;
 }
 
 size_t write_shotcut_project_file (const char *buffer, size_t size, off_t offset) {

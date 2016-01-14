@@ -3,6 +3,7 @@ fuse-ts (2016.01.14.1) stable; urgency=medium
   * finalize timestamp of files - should be set to creation time of mountpoint
   * abandon usage of absolute path in shotcut project file
   * remove separate shotcut project file for windows, see above
+  * bugfix: truncate may be called with size != 0
 
  -- Matthias Hunstock <atze@fem.tu-ilmenau.de>  Thu, 14 Jan 2016 23:15:35 +0100
 

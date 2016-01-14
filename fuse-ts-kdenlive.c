@@ -94,8 +94,16 @@ void open_kdenlive_project_file (const char *movie_path, int frames, int blankle
 	}
 }
 
-void truncate_kdenlive_project_file() {
-	if (kl_writebuffer != NULL) filebuffer__truncate(kl_writebuffer, 0);
+int truncate_kdenlive_project_file(size_t size) {
+	if (kl_writebuffer != NULL) {
+		size_t l = filebuffer__truncate(kl_writebuffer, size);
+		if (l < 0 || l < size) {
+			return -EIO;
+		}
+	} else {
+		kl_writebuffer = filebuffer__new();
+	}
+	return 0;
 }
 
 size_t write_kdenlive_project_file (const char *buffer, size_t size, off_t offset) {

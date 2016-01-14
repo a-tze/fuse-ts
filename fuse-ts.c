@@ -231,18 +231,25 @@ static int ts_truncate (const char *path, off_t size) {
 	debug_printf ("truncate called on '%s' with size %" PRId64 "\n", path, size);
 	int entrynr = get_index_from_pathname(path);
 	if (entrynr < 0) return -ENOENT;
+	size_t tmp;
 	switch(entrynr) {
 	case INDEX_KDENLIVE:
-		truncate_kdenlive_project_file();
-		return 0;
+		return truncate_kdenlive_project_file(size);
 	case INDEX_SHOTCUT:
-		truncate_shotcut_project_file();
-		return 0;
+		return truncate_shotcut_project_file(size);
 	case INDEX_INFRAME:
-		inframe_str_length = 0;
+		tmp = truncate_buffer(&inframe_str, inframe_str_length, size);
+		if (tmp < 0 || tmp < size) {
+			return -EIO;
+		}
+		inframe_str_length = tmp;
 		return 0;
 	case INDEX_OUTFRAME:
-		outframe_str_length = 0;
+		tmp = truncate_buffer(&outframe_str, outframe_str_length, size);
+		if (tmp < 0 || tmp < size) {
+			return -EIO;
+		}
+		outframe_str_length = tmp;
 		return 0;
 	}
 	return -EACCES;
