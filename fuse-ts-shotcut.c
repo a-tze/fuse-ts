@@ -14,38 +14,21 @@
 #include "fuse-ts-shotcut.h"
 
 const char *shotcut_path = "/project_shotcut.mlt";
-const char *shotcut_path_win = "/project_shotcut_win.mlt";
 static const char *sc_template;
 
 static filebuffer_t* sc_project_file_cache = NULL;
 static int sc_project_file_cache_frames = -1;
-static char * sc_project_file_cache_filename = NULL;
 static int sc_project_file_refcount = 0;
 static pthread_mutex_t sc_cachemutex = PTHREAD_MUTEX_INITIALIZER;
 
 static filebuffer_t *sc_writebuffer = NULL;
-static const char* slash = "/";
 
-filebuffer_t* get_shotcut_project_file_cache (const char *filename, int num_frames, int blanklen, const char* projectfile) {
+filebuffer_t* get_shotcut_project_file_cache (const char *filename, int num_frames, int blanklen) {
 	pthread_mutex_lock (&sc_cachemutex);
-	char *t = merge_strs (3, mountpoint, slash, filename);
-	if (0 == strcmp(projectfile, shotcut_path_win)) {
-		const char * t2 = strchr(mountpoint, '/');
-		int i = winpath_stripslashes;
-		while (i > 1 && strlen(t2) > 1) {
-			i--;
-			t2 = strchr(t2 + 1, '/');
-		}
-		if (t2 == NULL) t2 = slash;
-		free (t);
-		t = merge_strs (4, winpath, t2, slash, filename);
-	}
-	debug_printf ("%s: filename: '%s' path: '%s' frames: %d\n", __FUNCTION__, filename, t, num_frames);
 
-	if ((sc_project_file_cache != NULL) && (sc_project_file_cache_frames == num_frames) && (0 == strcmp(sc_project_file_cache_filename, t))) {
+	if ((sc_project_file_cache != NULL) && (sc_project_file_cache_frames == num_frames)) {
 		debug_printf ("get_shotcut_project_file: filename: '%s' frames: %d --> cache hit: (%p)\n", filename, num_frames, sc_project_file_cache);
 		pthread_mutex_unlock (&sc_cachemutex);
-		free(t);
 		return sc_project_file_cache;
 	}
 
@@ -54,22 +37,20 @@ filebuffer_t* get_shotcut_project_file_cache (const char *filename, int num_fram
 	if (sc_project_file_cache == NULL) sc_project_file_cache = filebuffer__new();
 	char* temp = (char *) malloc (size);
 	CHECK_OOM(temp);
-	int len = snprintf (temp, size - 1, sc_template, inframe, num_frames, num_frames - 1, outbyte, t, _outframe, blanklen);
+	int len = snprintf (temp, size - 1, sc_template, inframe, num_frames, num_frames - 1, outbyte, filename, _outframe, blanklen);
 	if (len >= size) err(124, "%s: size fail when generating project file\n", __FUNCTION__);
 	debug_printf ("get_shotcut_project_file: result has a size of: %d\n", len);
 	filebuffer__write(sc_project_file_cache, temp, len, 0);
 	filebuffer__truncate(sc_project_file_cache, len);
 	sc_project_file_cache_frames = num_frames;
-	if (sc_project_file_cache_filename != NULL) free(sc_project_file_cache_filename);
-	sc_project_file_cache_filename = t;
 	free (temp);
 
 	pthread_mutex_unlock (&sc_cachemutex);
 	return sc_project_file_cache;
 }
 
-size_t get_shotcut_project_file_size (const char *filename, int num_frames, int blanklen, const char* projectfile) {
-	filebuffer_t* fb = get_shotcut_project_file_cache (filename, num_frames, blanklen, projectfile);
+size_t get_shotcut_project_file_size (const char *filename, int num_frames, int blanklen) {
+	filebuffer_t* fb = get_shotcut_project_file_cache (filename, num_frames, blanklen);
 	return filebuffer__contentsize(fb);
 }
 
@@ -83,14 +64,14 @@ void init_shotcut_project_file () {
 	pthread_mutex_unlock (&sc_cachemutex);
 }
 
-size_t shotcut_read (const char *path, char *buf, size_t size, off_t offset, const char *movie_path, int frames, int blanklen, const char* projectfile) {
+size_t shotcut_read (const char *path, char *buf, size_t size, off_t offset, const char *movie_path, int frames, int blanklen) {
 	debug_printf ("reading from shotcut project file at %" PRId64 " with a length of %d \n", offset, size);
-	filebuffer_t* fb = get_shotcut_project_file_cache (movie_path + 1, frames, blanklen, projectfile);
+	filebuffer_t* fb = get_shotcut_project_file_cache (movie_path + 1, frames, blanklen);
 	if (fb == NULL) return -EIO;
 	return filebuffer__read (fb, offset, buf, size);
 }
 
-void open_shotcut_project_file (const char *movie_path, int frames, int blanklen, int truncate, const char* projectfile) {
+void open_shotcut_project_file (const char *movie_path, int frames, int blanklen, int truncate) {
 	debug_printf ("opening shotcut project file, truncate:%d\n", truncate);
 	sc_project_file_refcount++;
 	if (sc_project_file_refcount > 1) return;
@@ -99,7 +80,7 @@ void open_shotcut_project_file (const char *movie_path, int frames, int blanklen
 		if (truncate) {
 			sc_writebuffer = filebuffer__new();
 		} else {
-			sc_writebuffer = filebuffer__copy(get_shotcut_project_file_cache (movie_path, frames, blanklen, projectfile));
+			sc_writebuffer = filebuffer__copy(get_shotcut_project_file_cache (movie_path, frames, blanklen));
 		}
 	} else if (truncate) {
 		filebuffer__truncate(sc_writebuffer, 0);
@@ -215,12 +196,13 @@ int find_cutmarks_in_shotcut_project_file (int *inframe, int *outframe, int *bla
 	*blanklen = blank;
 	*inframe = in;
 	*outframe = out;
+	init_shotcut_project_file();
 	return 0;
 }
 
 
 //   %1$d => inframe,  %2$d => frames, %3$d => frames - 1 
-//   %4$(PRI64d) => filesize, %5$s => filename with path
+//   %4$(PRI64d) => filesize, %5$s => filename without path
 //   %6$d => outframe
 
 static const char *sc_template =

@@ -142,14 +142,7 @@ static int ts_getattr (const char *path, struct stat *stbuf) {
 		stbuf->st_mode = S_IFREG | 0666;
 		stbuf->st_size = 0;
 		if (totalframes > 0) {
-			stbuf->st_size = get_shotcut_project_file_size (rawName + 1, totalframes, blanklen, shotcut_path);
-		}
-		break;
-	case INDEX_SHOTCUT_WIN:
-		stbuf->st_mode = S_IFREG | 0666;
-		stbuf->st_size = 0;
-		if (totalframes > 0) {
-			stbuf->st_size = get_shotcut_project_file_size (rawName + 1, totalframes, blanklen, shotcut_path_win);
+			stbuf->st_size = get_shotcut_project_file_size (rawName + 1, totalframes, blanklen);
 		}
 		break;
 	case INDEX_REBUILD:
@@ -176,7 +169,6 @@ static int ts_readdir (const char *path, void *buf, fuse_fill_dir_t filler, off_
 	if (totalframes > 0) {
 		filler (buf, kdenlive_path + 1, NULL, 0);
 		filler (buf, shotcut_path + 1, NULL, 0);
-		filler (buf, shotcut_path_win + 1, NULL, 0);
 	}
 	filler (buf, opts_path + 1, NULL, 0);
 	filler (buf, "pid", NULL, 0);
@@ -197,7 +189,7 @@ static int ts_open (const char *path, struct fuse_file_info *fi) {
 	if (entrynr < 0) return -ENOENT;
 	switch(entrynr) {
 	case INDEX_RAW:
-		if ((fi->flags & 3) != O_RDONLY)
+		if (fi->flags & (O_WRONLY | O_RDWR))
 			return -EACCES;
 		check_signal ();
 		pthread_mutex_lock (&globalmutex);
@@ -212,16 +204,12 @@ static int ts_open (const char *path, struct fuse_file_info *fi) {
 		check_signal ();
 		break;
 	case INDEX_KDENLIVE:
-		if ((fi->flags & 3) != O_RDONLY && totalframes > 0)
+		if ((fi->flags & (O_WRONLY | O_RDWR)) && totalframes > 0)
 			open_kdenlive_project_file (rawName + 1, totalframes, blanklen, ((fi->flags & O_TRUNC) > 0));
 		return 0;
 	case INDEX_SHOTCUT:
-		if ((fi->flags & 3) != O_RDONLY && totalframes > 0)
-			open_shotcut_project_file (rawName + 1, totalframes, blanklen, ((fi->flags & O_TRUNC) > 0), shotcut_path);
-		return 0;
-	case INDEX_SHOTCUT_WIN:
-		if ((fi->flags & 3) != O_RDONLY && totalframes > 0)
-			open_shotcut_project_file (rawName + 1, totalframes, blanklen, ((fi->flags & O_TRUNC) > 0), shotcut_path_win);
+		if ((fi->flags & (O_WRONLY | O_RDWR)) && totalframes > 0)
+			open_shotcut_project_file (rawName + 1, totalframes, blanklen, ((fi->flags & O_TRUNC) > 0));
 		return 0;
 	case INDEX_PID:
 	case INDEX_INTIME:
@@ -248,7 +236,6 @@ static int ts_truncate (const char *path, off_t size) {
 		truncate_kdenlive_project_file();
 		return 0;
 	case INDEX_SHOTCUT:
-	case INDEX_SHOTCUT_WIN:
 		truncate_shotcut_project_file();
 		return 0;
 	case INDEX_INFRAME:
@@ -411,11 +398,7 @@ static int ts_read (const char *path, char *buf, size_t size, off_t offset, stru
 		return 0;
 	case INDEX_SHOTCUT:
 		if (totalframes > 0)
-			return shotcut_read (path, buf, size, offset, rawName, totalframes, blanklen, shotcut_path);
-		return 0;
-	case INDEX_SHOTCUT_WIN:
-		if (totalframes > 0)
-			return shotcut_read (path, buf, size, offset, rawName, totalframes, blanklen, shotcut_path_win);
+			return shotcut_read (path, buf, size, offset, rawName, totalframes, blanklen);
 		return 0;
 	}
 	debug_printf ("Path not found: '%s' \n", path);
@@ -429,7 +412,6 @@ int ts_write (const char *path, const char *buf, size_t size, off_t offset, stru
 	case INDEX_KDENLIVE:
 		return write_kdenlive_project_file (buf, size, offset);
 	case INDEX_SHOTCUT:
-	case INDEX_SHOTCUT_WIN:
 		return write_shotcut_project_file (buf, size, offset);
 	case INDEX_INFRAME:
 		return write_to_buffer (buf, size, offset, &inframe_str, &inframe_str_length);
@@ -462,7 +444,6 @@ int ts_release (const char *filename, struct fuse_file_info *info) {
 		close_kdenlive_project_file ();
 		break;
 	case INDEX_SHOTCUT:
-	case INDEX_SHOTCUT_WIN:
 		if (find_cutmarks_in_shotcut_project_file (&inframe, &outframe, &blanklen) == 0) {
 			pthread_mutex_lock (&globalmutex);
 			rebuild_opts ();
