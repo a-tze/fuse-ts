@@ -50,10 +50,6 @@ extern const char *durationName;
 typedef struct _sourcefile {
   char * filename;
   off_t globalpos; // excluding the bytes of this piece!
-//  off_t startpos;
-//  off_t endpos;
-//  int frames;
-//  int gframes; //including the frames of this piece
   int repeat;  // # of repetitions in slidemode
   FILE* fhandle;
   struct _sourcefile* prev; // NULL in the list head
@@ -63,13 +59,6 @@ typedef struct _sourcefile {
   int refcnt;
   off_t filesize; // size of this piece in bytes
   off_t totalsize; // cumulation of bytes including this piece
-
-//  size_t avi_size;
-//  off_t avi_globalpos; // excluding the bytes of this piece!
-  
-//  unsigned char *avi_movilist;
-//  unsigned char *avi_idx;
-//  int avi_idx_size;
 } sourcefile_t;
 
 typedef struct _fileposhint {
@@ -86,13 +75,9 @@ extern int filehints_size;
 
 extern void check_signal(void);
 extern sourcefile_t * init_sourcefiles();
-//extern void update_cut_filechains();
 extern void update_cutmarks_from_strings();
 extern void update_cutmarks_from_numbers();
-//extern sourcefile_t * cut_and_merge(sourcefile_t * list, int inframe, int outframe, 
-//  char* intro_file, char * outro_file, int* piece_count);
 extern void prepare_file_attributes(sourcefile_t * list);
-//extern int vdv_dv_do_read(sourcefile_t* file, char *buf, size_t size, off_t fileoffset);
 #endif
 
 

@@ -16,8 +16,6 @@ int get_index_from_pathname(const char* path) {
 		debug_printf ("get_index_from_path(NULL)!!!\n", path);
 		return -1;
 	}
-	debug_printf ("get_index_from_path('%s')\n", path);
-
 	if (strcmp (path, "/") == 0) {
 		return INDEX_ROOTDIR;
 	} else if (strcmp (path, rawName) == 0) {
