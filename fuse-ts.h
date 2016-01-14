@@ -33,8 +33,6 @@ extern char * outtime;
 extern int slidemode;
 extern char * intro_file;
 extern char * outro_file;
-extern char * winpath;
-extern int winpath_stripslashes;
 extern off_t outbyte;
 extern int numfiles;
 extern int totalframes;

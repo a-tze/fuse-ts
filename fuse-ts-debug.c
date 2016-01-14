@@ -27,8 +27,6 @@ void print_parsed_opts(int argc_new) {
     printf("\tstart_time:\t%s\n", start_time);
     printf("\tintro_file:\t%s\n", intro_file);
     printf("\toutro_file:\t%s\n", outro_file);
-    printf("\twinpath:\t%s\n", winpath);
-    printf("\tstripslashes:\t%d\n", winpath_stripslashes);
     printf("\n\n\targuments left:\t%d\n\n", argc_new);
 }
 

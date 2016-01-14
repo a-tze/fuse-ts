@@ -37,8 +37,6 @@ void print_usage() {
 	fprintf(stdout, "\t\tintro=/foo/bar/x.dv\tintro file (optional, relative to capture dir)\n");
 	fprintf(stdout, "\t\toutro=/foo/bar/x.dv\toutro file (optional, relative to capture dir)\n");
 	fprintf(stdout, "\t\tslides\t\tslidemode, interpret filenames as timestamps (optional)\n");
-	fprintf(stdout, "\t\twinpath\t\tpath prefix for win32 shotcut file, e.g. UNC path oder mapped drive (optional)\n");
-	fprintf(stdout, "\t\tstripslashes\t\tstrip mountpoint by this number of slashes to get win32 path (optional)\n");
 	fprintf(stdout, "\n\n");
 	fprintf(stdout, "If both parameters ob and numfiles are given, fuse-TS stops when the first \n");
 	fprintf(stdout, "of these two conditions is met\n");
@@ -164,21 +162,6 @@ void parse_opts(int * p_argc, char*** p_argv) {
 			}
 			continue;
 		}
-		if (strncmp(opt, "winpath=", 8) == 0) {
-			if (strlen(opt) > 8) {
-				// accept empty option, since it's optional
-				winpath = dupe_str(opt + 8);
-			}
-			continue;
-		}
-		if (strncmp(opt, "stripslashes=", 13) == 0) {
-			winpath_stripslashes = atoi(opt + 13);
-			if ((winpath_stripslashes < 1) || (winpath_stripslashes > 20)) {
-				fprintf(logging, "Warning: stripslashes out of bounds: %d! Ignoring value\n", winpath_stripslashes);
-				winpath_stripslashes = 0;
-			}
-			continue;
-		}
 
 		argv_new[argc_new++] = opt;
 	}
@@ -285,14 +268,6 @@ void rebuild_opts() {
 	}
 	if (outro_file != NULL) {
 		snprintf(t, s-1, " outro=%s ", outro_file);
-		ret = append_and_free(ret, dupe_str(t));
-	}
-	if (winpath != NULL) {
-		snprintf(t, s-1, " winpath=%s ", winpath);
-		ret = append_and_free(ret, dupe_str(t));
-	}
-	if (winpath_stripslashes > 0) {
-		snprintf(t, s-1, " stripslashes=%d ", winpath_stripslashes);
 		ret = append_and_free(ret, dupe_str(t));
 	}
 	if (slidemode != 0) {
