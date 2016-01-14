@@ -1,3 +1,9 @@
+fuse-ts (2016.01.14.1) stable; urgency=medium
+
+  * finalize timestamp of files - should be set to creation time of mountpoint
+
+ -- Matthias Hunstock <atze@fem.tu-ilmenau.de>  Thu, 14 Jan 2016 23:15:35 +0100
+
 fuse-ts (2015.10.03.1) stable; urgency=low
 
   * bugfix shotcut files
