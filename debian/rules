@@ -5,3 +5,6 @@
 
 override_dh_auto_test:
 	@echo skipping tests
+
+override_dh_auto_build:
+	export EXTRA_CFLAGS="-g" ; dh_auto_build $@
