@@ -132,9 +132,9 @@ int find_cutmarks_in_kdenlive_project_file (int *inframe, int *outframe, int *bl
 	}
 /*
   in XPATH, I would look for 
-    playlist[@id='playlist5']/entry[@producer='1']/@in
+    playlist[@id='playlist1']/entry[@producer='1']/@in
   and
-    playlist[@id='playlist5']/entry[@producer='1']/@out
+    playlist[@id='playlist1']/entry[@producer='1']/@out
 */
 	mxml_node_t *xmldoc;
 	char* temp = filebuffer__read_all_to_cstring(kl_writebuffer);
@@ -145,9 +145,9 @@ int find_cutmarks_in_kdenlive_project_file (int *inframe, int *outframe, int *bl
 		return 1;
 	}
 	mxml_node_t *node, *subnode;
-	node = mxmlFindElement (xmldoc, xmldoc, "playlist", "id", "playlist5", MXML_DESCEND);
+	node = mxmlFindElement (xmldoc, xmldoc, "playlist", "id", "playlist1", MXML_DESCEND);
 	if (NULL == node) {
-		debug_printf ("find_cutmarks: node with id 'playlist5' not found!\n");
+		debug_printf ("find_cutmarks: node with id 'playlist1' not found!\n");
 		mxmlRelease (xmldoc);
 		return 2;
 	}
@@ -222,89 +222,46 @@ static const char *kl_template =
 " <!-- %1$d => inframe,  %2$d => frames, %3$d => frames - 1  "
 "  %4$" PRId64 " => filesize, %5$s => filename with path "
 "  %6$d => outframe, %7$d => blanktime --> "
-" <producer in=\"0\" out=\"500\" id=\"black\">"
+// Omitting aspect ratio crashes KDEnlive, so living with hardcoded values.
+// Cutting other formats should be possible anyway, KDEnlive will just scale
+// it wrong if it is not 16:9.
+" <profile width=\"1920\" frame_rate_den=\"1\" height=\"1080\" "
+" display_aspect_num=\"16\" display_aspect_den=\"9\" frame_rate_num=\"25\" "
+" colorspace=\"709\" sample_aspect_den=\"1\" description=\"HD 1080i 25 fps\" "
+" progressive=\"0\" sample_aspect_num=\"1\"/> "
+" <producer in=\"0\" out=\"%3$d\" id=\"black\">"
 "  <property name=\"mlt_type\">producer</property>"
 "  <property name=\"aspect_ratio\">0</property>"
-"  <property name=\"length\">15000</property>"
+"  <property name=\"length\">%2$d</property>"
 "  <property name=\"eof\">pause</property>"
 "  <property name=\"resource\">black</property>"
 "  <property name=\"mlt_service\">colour</property>"
 " </producer>"
 " <playlist id=\"black_track\">"
-"  <entry in=\"0\" out=\"7000\" producer=\"black\"/>"
+"  <entry in=\"0\" out=\"%3$d\" producer=\"black\"/>"
 " </playlist>"
-" <playlist id=\"playlist1\"/>"
-" <playlist id=\"playlist2\"/>"
-" <playlist id=\"playlist3\"/>"
-" <playlist id=\"playlist4\"/>"
 " <producer in=\"0\" out=\"%3$d\" id=\"1\">"
 "  <property name=\"mlt_type\">producer</property>"
-"  <property name=\"aspect_ratio\">1.422222</property>"
 "  <property name=\"length\">%2$d</property>"
 "  <property name=\"eof\">pause</property>"
 "  <property name=\"resource\">%5$s</property>"
 "  <property name=\"mlt_service\">avformat</property>"
 "  <property name=\"source_fps\">25.000000</property>"
 " </producer>"
-" <playlist id=\"playlist5\">"
+" <playlist id=\"playlist1\">"
 "  <blank length=\"%7$d\"/>"
 "  <entry in=\"%1$d\" out=\"%6$d\" producer=\"1\"/>"
 " </playlist>"
 " <tractor title=\"Anonymous Submission\" global_feed=\"1\" in=\"0\" out=\"%3$d\" id=\"maintractor\">"
 "  <track producer=\"black_track\"/>"
-"  <track hide=\"video\" producer=\"playlist1\"/>"
-"  <track hide=\"video\" producer=\"playlist2\"/>"
-"  <track producer=\"playlist3\"/>"
-"  <track producer=\"playlist4\"/>"
-"  <track producer=\"playlist5\"/>"
-"  <transition in=\"0\" out=\"0\" id=\"transition0\">"
-"   <property name=\"a_track\">1</property>"
-"   <property name=\"b_track\">2</property>"
-"   <property name=\"mlt_type\">transition</property>"
-"   <property name=\"mlt_service\">mix</property>"
-"   <property name=\"always_active\">1</property>"
-"   <property name=\"combine\">1</property>"
-"   <property name=\"internal_added\">237</property>"
-"  </transition>"
-"  <transition in=\"0\" out=\"0\" id=\"transition1\">"
-"   <property name=\"a_track\">1</property>"
-"   <property name=\"b_track\">3</property>"
-"   <property name=\"mlt_type\">transition</property>"
-"   <property name=\"mlt_service\">mix</property>"
-"   <property name=\"always_active\">1</property>"
-"   <property name=\"combine\">1</property>"
-"   <property name=\"internal_added\">237</property>"
-"  </transition>"
-"  <transition in=\"0\" out=\"0\" id=\"transition2\">"
-"   <property name=\"a_track\">1</property>"
-"   <property name=\"b_track\">4</property>"
-"   <property name=\"mlt_type\">transition</property>"
-"   <property name=\"mlt_service\">mix</property>"
-"   <property name=\"always_active\">1</property>"
-"   <property name=\"combine\">1</property>"
-"   <property name=\"internal_added\">237</property>"
-"  </transition>"
-"  <transition in=\"0\" out=\"0\" id=\"transition3\">"
-"   <property name=\"a_track\">1</property>"
-"   <property name=\"b_track\">5</property>"
-"   <property name=\"mlt_type\">transition</property>"
-"   <property name=\"mlt_service\">mix</property>"
-"   <property name=\"always_active\">1</property>"
-"   <property name=\"combine\">1</property>"
-"   <property name=\"internal_added\">237</property>"
-"  </transition>"
+"  <track producer=\"playlist1\"/>"
 " </tractor>"
-" <kdenlivedoc profile=\"hdv_1080_50i\" kdenliveversion=\"0.9.0\" version=\"0.88\" projectfolder=\"/tmp/kdenlive\">"
-"  <documentproperties zonein=\"0\" zoneout=\"100\" zoom=\"8\" verticalzoom=\"1\" position=\"0\"/>"
-"  <profileinfo width=\"1440\" display_aspect_den=\"9\" frame_rate_den=\"1\" description=\"HDV 1440x1080i 25 fps\" height=\"1080\" frame_rate_num=\"25\" display_aspect_num=\"16\" progressive=\"0\" sample_aspect_num=\"4\" sample_aspect_den=\"3\"/>"
+" <kdenlivedoc kdenliveversion=\"0.9.10\" version=\"0.88\" projectfolder=\"/tmp/kdenlive\">"
+"  <documentproperties zonein=\"0\" zoneout=\"100\" zoom=\"10\" verticalzoom=\"1\" position=\"0\"/>"
 "  <tracksinfo>"
-"   <trackinfo blind=\"1\" mute=\"0\" locked=\"0\" trackname=\"Audio 2\" type=\"audio\"/>"
-"   <trackinfo blind=\"1\" mute=\"0\" locked=\"0\" trackname=\"Audio 1\" type=\"audio\"/>"
-"   <trackinfo blind=\"0\" mute=\"0\" locked=\"0\" trackname=\"Video 3\"/>"
-"   <trackinfo blind=\"0\" mute=\"0\" locked=\"0\" trackname=\"Video 2\"/>"
-"   <trackinfo blind=\"0\" mute=\"0\" locked=\"0\" trackname=\"Video 1\"/>"
+"   <trackinfo blind=\"0\" mute=\"0\" locked=\"0\" trackname=\"Cut me\"/>"
 "  </tracksinfo>"
-"  <kdenlive_producer audio_max=\"2\" id=\"1\" default_video=\"0\" fps=\"25.000000\" name=\"uncut.ts\" videocodec=\"H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10\" resource=\"%5$s\" default_audio=\"1\" audiocodec=\"Advanced Audio Coding\" duration=\"%2$d\" aspect_ratio=\"1.422222\" channels=\"2\" frequency=\"48000\" video_max=\"0\" type=\"3\" frame_size=\"720x576\" file_size=\"%4$" PRId64 "\" />"
+"  <kdenlive_producer id=\"1\" default_video=\"0\" fps=\"25.000000\" name=\"uncut.ts\" resource=\"%5$s\" duration=\"%2$d\" type=\"3\" />"
 "  <markers/>"
 "  <groups/>"
 " </kdenlivedoc>"
