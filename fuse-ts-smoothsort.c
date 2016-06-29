@@ -13,7 +13,7 @@ static const int LP[] = { 1, 1, 3, 5, 9, 15, 25, 41, 67, 109,
 	866988873 // the next number is > 31 bits.
 };
 
-inline int numberOfTrailingZeros(int a) {
+int numberOfTrailingZeros(int a) {
 	if (a == 0) {
 		return 32;
 	}
