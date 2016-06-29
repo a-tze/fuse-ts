@@ -197,7 +197,7 @@ void parse_opts(int * p_argc, char*** p_argv) {
 		inframe = 0;
 	}
 	if (outframe < 0 && totalframes > 0) {
-		outframe = totalframes;
+		outframe = totalframes - 1;
 	}
 
 #ifdef DEBUG
