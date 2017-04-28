@@ -202,11 +202,11 @@ static int ts_open (const char *path, struct fuse_file_info *fi) {
 		check_signal ();
 		break;
 	case INDEX_KDENLIVE:
-		if ((fi->flags & (O_WRONLY | O_RDWR)) && totalframes > 0)
+		if (totalframes > 0)
 			open_kdenlive_project_file (rawName + 1, totalframes, blanklen, ((fi->flags & O_TRUNC) > 0));
 		return 0;
 	case INDEX_SHOTCUT:
-		if ((fi->flags & (O_WRONLY | O_RDWR)) && totalframes > 0)
+		if (totalframes > 0)
 			open_shotcut_project_file (rawName + 1, totalframes, blanklen, ((fi->flags & O_TRUNC) > 0));
 		return 0;
 	case INDEX_PID:
