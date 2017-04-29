@@ -31,7 +31,7 @@ void print_usage() {
 	fprintf(stdout, "\t\tst=xxxx-xx-xx_xx[-xx[-xx]]\tcapture start date and time\n");
 	fprintf(stdout, "\t\tob=[1..2^63]\tnumber of bytes of resulting file\n");
 	fprintf(stdout, "\t\tnumfiles=[1..2^31]\tmaximum number of input files to consider\n");
-	fprintf(stdout, "\t\ttotalframes=[1..2^31]\ttotal number of frames expected to be in resulting output file\n");
+	fprintf(stdout, "\t\ttotalframes=[1..2^31]\ttotal number of frames expected to be in resulting output file (optional, but required for project files)\n");
 	fprintf(stdout, "\t\tif=[1..2^32]\tnumber of inframe for cut (optional)\n");
 	fprintf(stdout, "\t\tof=[1..2^32]\tnumber of outframe for cut (relative to start, optional)\n");
 	fprintf(stdout, "\t\tintro=/foo/bar/x.dv\tintro file (optional, relative to capture dir)\n");

@@ -91,6 +91,9 @@ static int ts_getattr (const char *path, struct stat *stbuf) {
 	memset (stbuf, 0, sizeof (struct stat));
 	int entrynr = get_index_from_pathname(path);
 	if (entrynr < 0) return -ENOENT;
+	if ((entrynr == INDEX_KDENLIVE || entrynr == INDEX_SHOTCUT)
+		&& totalframes < 0)
+		return -ENOENT;
 
 	stbuf->st_ino = (pid_nr << 16) | entrynr;
 	stbuf->st_mode = S_IFREG | 0444;
@@ -202,12 +205,14 @@ static int ts_open (const char *path, struct fuse_file_info *fi) {
 		check_signal ();
 		break;
 	case INDEX_KDENLIVE:
-		if (totalframes > 0)
-			open_kdenlive_project_file (rawName + 1, totalframes, blanklen, ((fi->flags & O_TRUNC) > 0));
+		if (totalframes <= 0)
+			return -ENOENT;
+		open_kdenlive_project_file (rawName + 1, totalframes, blanklen, ((fi->flags & O_TRUNC) > 0));
 		return 0;
 	case INDEX_SHOTCUT:
-		if (totalframes > 0)
-			open_shotcut_project_file (rawName + 1, totalframes, blanklen, ((fi->flags & O_TRUNC) > 0));
+		if (totalframes <= 0)
+			return -ENOENT;
+		open_shotcut_project_file (rawName + 1, totalframes, blanklen, ((fi->flags & O_TRUNC) > 0));
 		return 0;
 	case INDEX_PID:
 	case INDEX_INTIME:
@@ -440,6 +445,8 @@ int ts_release (const char *filename, struct fuse_file_info *info) {
 		pthread_mutex_unlock (&globalmutex);
 		break;
 	case INDEX_KDENLIVE:
+		if (totalframes <= 0)
+			return -ENOENT;
 		if (find_cutmarks_in_kdenlive_project_file (&inframe, &outframe, &blanklen) == 0) {
 			pthread_mutex_lock (&globalmutex);
 			rebuild_opts ();
@@ -449,6 +456,8 @@ int ts_release (const char *filename, struct fuse_file_info *info) {
 		close_kdenlive_project_file ();
 		break;
 	case INDEX_SHOTCUT:
+		if (totalframes <= 0)
+			return -ENOENT;
 		if (find_cutmarks_in_shotcut_project_file (&inframe, &outframe, &blanklen) == 0) {
 			pthread_mutex_lock (&globalmutex);
 			rebuild_opts ();
