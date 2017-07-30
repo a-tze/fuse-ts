@@ -15,8 +15,6 @@
 #include <signal.h>
 
 // non-volatile parameters
-static const int frames_per_second = 25;
-static const int frame_duration_ms = 40; // frame duration in milliseconds
 static const int read_block_size = 65536;
 
 // "instance" variables:
@@ -36,6 +34,8 @@ extern char * outro_file;
 extern off_t outbyte;
 extern int numfiles;
 extern int totalframes;
+extern int frames_per_second;
+extern int frame_duration_ms; // frame duration in milliseconds
 
 extern char * mountpoint;
 

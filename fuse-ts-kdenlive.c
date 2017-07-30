@@ -40,7 +40,7 @@ filebuffer_t* get_kdenlive_project_file_cache (const char *filename, int num_fra
 	if (kl_project_file_cache == NULL) kl_project_file_cache = filebuffer__new();
 	char* temp = (char *) malloc (size);
 	CHECK_OOM(temp);
-	int len = snprintf (temp, size - 1, kl_template, _inframe, num_frames, num_frames - 1, outbyte, t, _outframe, blanklen);
+	int len = snprintf (temp, size - 1, kl_template, _inframe, num_frames, num_frames - 1, outbyte, t, _outframe, blanklen, frames_per_second);
 	if (len >= size) err(124, "%s: size fail when generating project file\n", __FUNCTION__);
 	debug_printf ("%s: result has a size of: %d\n", __FUNCTION__, len);
 	filebuffer__write(kl_project_file_cache, temp, len, 0);
@@ -226,8 +226,8 @@ static const char *kl_template =
 // Cutting other formats should be possible anyway, KDEnlive will just scale
 // it wrong if it is not 16:9.
 " <profile width=\"1920\" frame_rate_den=\"1\" height=\"1080\" "
-" display_aspect_num=\"16\" display_aspect_den=\"9\" frame_rate_num=\"25\" "
-" colorspace=\"709\" sample_aspect_den=\"1\" description=\"HD 1080i 25 fps\" "
+" display_aspect_num=\"16\" display_aspect_den=\"9\" frame_rate_num=\"%8$d\" "
+" colorspace=\"709\" sample_aspect_den=\"1\" description=\"HD 1080i %8$d fps\" "
 " progressive=\"0\" sample_aspect_num=\"1\"/> "
 " <producer in=\"0\" out=\"%3$d\" id=\"black\">"
 "  <property name=\"mlt_type\">producer</property>"
@@ -246,7 +246,7 @@ static const char *kl_template =
 "  <property name=\"eof\">pause</property>"
 "  <property name=\"resource\">%5$s</property>"
 "  <property name=\"mlt_service\">avformat</property>"
-"  <property name=\"source_fps\">25.000000</property>"
+"  <property name=\"source_fps\">%8$d.000000</property>"
 " </producer>"
 " <playlist id=\"playlist1\">"
 "  <blank length=\"%7$d\"/>"
@@ -261,7 +261,7 @@ static const char *kl_template =
 "  <tracksinfo>"
 "   <trackinfo blind=\"0\" mute=\"0\" locked=\"0\" trackname=\"Cut me\"/>"
 "  </tracksinfo>"
-"  <kdenlive_producer id=\"1\" default_video=\"0\" fps=\"25.000000\" name=\"uncut.ts\" resource=\"%5$s\" duration=\"%2$d\" type=\"3\" />"
+"  <kdenlive_producer id=\"1\" default_video=\"0\" fps=\"%8$d.000000\" name=\"uncut.ts\" resource=\"%5$s\" duration=\"%2$d\" type=\"3\" />"
 "  <markers/>"
 "  <groups/>"
 " </kdenlivedoc>"

@@ -162,6 +162,13 @@ void parse_opts(int * p_argc, char*** p_argv) {
 			}
 			continue;
 		}
+		if (strncmp(opt, "fps=", 4) == 0) {
+			frames_per_second = atoi(opt + 4);
+			if (frames_per_second < 0) {
+				fprintf(logging, "Error: frames per second can not be negative!\n");
+			}
+			continue;
+		}
 
 		argv_new[argc_new++] = opt;
 	}
