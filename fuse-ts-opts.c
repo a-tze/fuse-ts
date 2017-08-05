@@ -281,6 +281,10 @@ void rebuild_opts() {
 		snprintf(t, s-1, " slides ");
 		ret = append_and_free(ret, dupe_str(t));
 	}
+	if (frames_per_second != 25) {
+		snprintf(t, s-1, " fps=%d ",frames_per_second);
+		ret = append_and_free(ret, dupe_str(t));
+	}
 	opts = malloc(s);
 	opts[s-1] = 0;
 	snprintf(opts, s - 1, "fuse-ts %s %s \n", ret, opts_tail);
