@@ -34,7 +34,6 @@ char *prefix = NULL;
 int inframe = 0;
 int outframe = 0;
 int frames_per_second = 50;
-int frame_duration_ms = 20;
 int blanklen = 0;
 char * intime = NULL;
 char * outtime = NULL;

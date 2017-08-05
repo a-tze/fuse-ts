@@ -35,7 +35,6 @@ extern off_t outbyte;
 extern int numfiles;
 extern int totalframes;
 extern int frames_per_second;
-extern int frame_duration_ms; // frame duration in milliseconds
 
 extern char * mountpoint;
 
