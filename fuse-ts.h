@@ -35,7 +35,8 @@ extern off_t outbyte;
 extern int numfiles;
 extern int totalframes;
 extern int frames_per_second;
-
+extern int width;
+extern int height;
 extern char * mountpoint;
 
 // constants

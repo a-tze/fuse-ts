@@ -40,7 +40,7 @@ filebuffer_t* get_kdenlive_project_file_cache (const char *filename, int num_fra
 	if (kl_project_file_cache == NULL) kl_project_file_cache = filebuffer__new();
 	char* temp = (char *) malloc (size);
 	CHECK_OOM(temp);
-	int len = snprintf (temp, size - 1, kl_template, _inframe, num_frames, num_frames - 1, outbyte, t, _outframe, blanklen, frames_per_second);
+	int len = snprintf (temp, size - 1, kl_template, _inframe, num_frames, num_frames - 1, outbyte, t, _outframe, blanklen, frames_per_second, width, height);
 	if (len >= size) err(124, "%s: size fail when generating project file\n", __FUNCTION__);
 	debug_printf ("%s: result has a size of: %d\n", __FUNCTION__, len);
 	filebuffer__write(kl_project_file_cache, temp, len, 0);
@@ -225,7 +225,7 @@ static const char *kl_template =
 // Omitting aspect ratio crashes KDEnlive, so living with hardcoded values.
 // Cutting other formats should be possible anyway, KDEnlive will just scale
 // it wrong if it is not 16:9.
-" <profile width=\"1920\" frame_rate_den=\"1\" height=\"1080\" "
+" <profile width=\"%9$d\" frame_rate_den=\"1\" height=\"%10$d\" "
 " display_aspect_num=\"16\" display_aspect_den=\"9\" frame_rate_num=\"%8$d\" "
 " colorspace=\"709\" sample_aspect_den=\"1\" description=\"HD 1080i %8$d fps\" "
 " progressive=\"0\" sample_aspect_num=\"1\"/> "
