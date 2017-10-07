@@ -314,7 +314,7 @@ int get_unix_timestamp_from_filename (const char *filename) {
 */
 char * frames_to_seconds (int frames, int fps) {
 	char * ret = malloc(32); // must be enough :)
-	int len = snprintf (ret, 31, "%d.%03d", frames / fps, (frames % fps) * frame_duration_ms);
+	int len = snprintf (ret, 31, "%d.%03d", frames / fps, (int)((frames % fps) * (1000.0 / frames_per_second )));
 	if (len > 30) {
 		debug_printf ("frames_to_seconds: unusual string size for converting frame number %d at frame rate %d\n", frames, fps);
 		ret[31] = 0;

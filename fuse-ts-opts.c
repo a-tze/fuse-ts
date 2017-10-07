@@ -162,6 +162,30 @@ void parse_opts(int * p_argc, char*** p_argv) {
 			}
 			continue;
 		}
+		if (strncmp(opt, "fps=", 4) == 0) {
+			frames_per_second = atoi(opt + 4);
+			if (frames_per_second < 0) {
+				fprintf(logging, "Error: frames per second can not be negative!\n");
+				exit(106);
+			}
+			continue;
+		}
+		if (strncmp(opt, "width=", 6) == 0) {
+			width = atoi(opt + 6);
+			if (width < 0) {
+				fprintf(logging, "Error: width can not be negative!\n");
+				exit(107);
+			}
+			continue;
+		}
+		if (strncmp(opt, "height=", 7) == 0) {
+                        height = atoi(opt + 6);
+                        if (height < 0) {
+                                fprintf(logging, "Error: height can not be negative!\n");
+				exit(108);
+                        }
+                        continue;
+                }
 
 		argv_new[argc_new++] = opt;
 	}
@@ -274,6 +298,18 @@ void rebuild_opts() {
 		snprintf(t, s-1, " slides ");
 		ret = append_and_free(ret, dupe_str(t));
 	}
+	if (frames_per_second != 25) {
+		snprintf(t, s-1, " fps=%d ", frames_per_second);
+		ret = append_and_free(ret, dupe_str(t));
+	}
+	if (width != 1920) {
+		snprintf(t, s-1, " width=%d ", width);
+		ret = append_and_free(ret, dupe_str(t));
+	}
+	if (height != 1280) {
+                snprintf(t, s-1, " height=%d ", height);
+                ret = append_and_free(ret, dupe_str(t));
+        }
 	opts = malloc(s);
 	opts[s-1] = 0;
 	snprintf(opts, s - 1, "fuse-ts %s %s \n", ret, opts_tail);

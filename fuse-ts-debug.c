@@ -27,6 +27,9 @@ void print_parsed_opts(int argc_new) {
     printf("\tstart_time:\t%s\n", start_time);
     printf("\tintro_file:\t%s\n", intro_file);
     printf("\toutro_file:\t%s\n", outro_file);
+    printf("\tfps:\t%d\n", frames_per_second);
+    printf("\twidth:\t%d\n", width);
+    printf("\theight:\t%d\n", height);
     printf("\n\n\targuments left:\t%d\n\n", argc_new);
 }
 
