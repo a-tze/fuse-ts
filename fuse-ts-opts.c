@@ -170,7 +170,7 @@ void parse_opts(int * p_argc, char*** p_argv) {
 			}
 			continue;
 		}
-		if (strncmp(opt, "width=", 6)) {
+		if (strncmp(opt, "width=", 6) == 0) {
 			width = atoi(opt + 6);
 			if (width < 0) {
 				fprintf(logging, "Error: width can not be negative!\n");
@@ -178,7 +178,7 @@ void parse_opts(int * p_argc, char*** p_argv) {
 			}
 			continue;
 		}
-		if (strncmp(opt, "height=", 7)) {
+		if (strncmp(opt, "height=", 7) == 0) {
                         height = atoi(opt + 6);
                         if (height < 0) {
                                 fprintf(logging, "Error: height can not be negative!\n");
