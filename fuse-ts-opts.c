@@ -179,7 +179,7 @@ void parse_opts(int * p_argc, char*** p_argv) {
 			continue;
 		}
 		if (strncmp(opt, "height=", 7) == 0) {
-                        height = atoi(opt + 6);
+                        height = atoi(opt + 7);
                         if (height < 0) {
                                 fprintf(logging, "Error: height can not be negative!\n");
 				exit(108);
