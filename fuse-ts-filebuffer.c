@@ -36,6 +36,15 @@ size_t filebuffer__write (filebuffer_t* self, const char * source, size_t size, 
 	return size;
 }
 
+size_t filebuffer__append (filebuffer_t* self, const char * source, size_t size) {
+	if (self == NULL) {
+		error_printf ("appending buffer failed: NULL pointer!\n");
+		return -EACCES;
+	}
+	off_t offset = self->contentsize;
+	return filebuffer__write(self, source, size, offset);
+}
+
 filebuffer_t* filebuffer__new () {
 	filebuffer_t* ret = (filebuffer_t*) malloc(sizeof(filebuffer_t));
 	CHECK_OOM (ret);
