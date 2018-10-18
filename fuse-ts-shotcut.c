@@ -10,7 +10,6 @@
 #include "fuse-ts.h"
 #include "fuse-ts-tools.h"
 #include "fuse-ts-debug.h"
-#include "fuse-ts-filebuffer.h"
 #include "fuse-ts-shotcut.h"
 
 const char *shotcut_path = "/project_shotcut.mlt";

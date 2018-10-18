@@ -10,7 +10,6 @@
 #include "fuse-ts.h"
 #include "fuse-ts-tools.h"
 #include "fuse-ts-debug.h"
-#include "fuse-ts-filebuffer.h"
 #include "fuse-ts-kdenlive.h"
 
 char *kdenlive_path = "/project.kdenlive";

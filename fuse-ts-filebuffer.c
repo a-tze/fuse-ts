@@ -10,7 +10,6 @@
 #include "fuse-ts.h"
 #include "fuse-ts-tools.h"
 #include "fuse-ts-debug.h"
-#include "fuse-ts-filebuffer.h"
 
 static size_t filebuffer__truncate__unlocked(filebuffer_t* self, size_t new_size);
 

@@ -13,12 +13,14 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <signal.h>
+#include "fuse-ts-filebuffer.h"
 
 // non-volatile parameters
 static const int read_block_size = 65536;
 
 // "instance" variables:
 extern FILE* logging;
+extern filebuffer_t* log_filebuffer;
 
 extern char * base_dir ;
 extern char * start_time;

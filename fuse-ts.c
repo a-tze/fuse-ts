@@ -18,7 +18,6 @@
 #include "fuse-ts.h"
 #include "fuse-ts-tools.h"
 #include "fuse-ts-filelist.h"
-#include "fuse-ts-filebuffer.h"
 #include "fuse-ts-opts.h"
 #include "fuse-ts-debug.h"
 #include "fuse-ts-kdenlive.h"
@@ -88,6 +87,7 @@ fileposhint_t **filehints = NULL;
 int filehints_size = 0;
 
 filebuffer_t* filelist_filebuffer = NULL;
+filebuffer_t* log_filebuffer = NULL;
 
 static int pid_nr = 0;
 
@@ -155,6 +155,9 @@ static int ts_getattr (const char *path, struct stat *stbuf) {
 	case INDEX_FILELIST:
 		stbuf->st_size = filebuffer__contentsize(filelist_filebuffer);
 		break;
+	case INDEX_LOG:
+		stbuf->st_size = filebuffer__contentsize(log_filebuffer);
+		break;
 	default:
 		return -ENOENT;
 	}
@@ -185,6 +188,7 @@ static int ts_readdir (const char *path, void *buf, fuse_fill_dir_t filler, off_
 	filler (buf, "outframe", NULL, 0);
 	filler (buf, "rebuild", NULL, 0);
 	filler (buf, "filelist", NULL, 0);
+	filler (buf, "log", NULL, 0);
 
 	return 0;
 }
@@ -228,6 +232,7 @@ static int ts_open (const char *path, struct fuse_file_info *fi) {
 	case INDEX_OPTS:
 	case INDEX_DURATION:
 	case INDEX_FILELIST:
+	case INDEX_LOG:
 	case INDEX_ROOTDIR:
 		return 0;
 	default:
@@ -406,6 +411,8 @@ static int ts_read (const char *path, char *buf, size_t size, off_t offset, stru
 		return string_read_with_length (outframe_str, buf, size, offset, outframe_str_length);
 	case INDEX_FILELIST:
 		return filebuffer__read(filelist_filebuffer, offset, buf, size);
+	case INDEX_LOG:
+		return filebuffer__read(log_filebuffer, offset, buf, size);
 	case INDEX_OPTS:
 		t = get_opts ();
 		ret = string_read (t, buf, size, offset);
@@ -759,6 +766,7 @@ int main (int argc, char *argv[]) {
 		print_usage ();
 		exit (100);
 	}
+	log_filebuffer = filebuffer__new();
 	int argc_new = argc;
 	char **argv_new = argv;
 	parse_opts (&argc_new, &argv_new);
@@ -769,21 +777,12 @@ int main (int argc, char *argv[]) {
 	prepare_file_attributes (sourcefiles);
 	create_filelist(sourcefiles);
 
-#ifdef DEBUG
 	print_file_chain ("raw", sourcefiles);
-#endif
 
 	sig_t handler = handle_sigusr1;
 	if (signal (SIGUSR1, handler) == SIG_ERR) {
-		fprintf (logging, "Could not register signal handler, going on without!\n");
+		error_printf ("Could not register signal handler, going on without!\n");
 	}
 
-#ifndef DEBUG
-	logging = fopen ("/tmp/fuse-ts.log", "a");
-#endif
-	int ret = fuse_main (argc_new, argv_new, &ts_oper);
-#ifdef DEBUG
-	fclose (logging);
-#endif
-	return ret;
+	return fuse_main (argc_new, argv_new, &ts_oper);
 }
