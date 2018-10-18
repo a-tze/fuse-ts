@@ -40,6 +40,8 @@ int get_index_from_pathname(const char* path) {
 		return INDEX_SHOTCUT;
 	}else if (strcmp (path, "/rebuild") == 0) {
 		return INDEX_REBUILD;
+	}else if (strcmp (path, "/filelist") == 0) {
+		return INDEX_FILELIST;
 	} else {
 		debug_printf ("get_index_from_path: unknown path!\n");
 	}

@@ -18,6 +18,7 @@
 #include "fuse-ts.h"
 #include "fuse-ts-tools.h"
 #include "fuse-ts-filelist.h"
+#include "fuse-ts-filebuffer.h"
 #include "fuse-ts-opts.h"
 #include "fuse-ts-debug.h"
 #include "fuse-ts-kdenlive.h"
@@ -86,6 +87,8 @@ int filechains_size = 0;
 fileposhint_t **filehints = NULL;
 int filehints_size = 0;
 
+filebuffer_t* filelist_filebuffer = NULL;
+
 static int pid_nr = 0;
 
 static int ts_getattr (const char *path, struct stat *stbuf) {
@@ -149,6 +152,9 @@ static int ts_getattr (const char *path, struct stat *stbuf) {
 		stbuf->st_mode = S_IFREG | 0200;
 		stbuf->st_size = 0;
 		break;
+	case INDEX_FILELIST:
+		stbuf->st_size = filebuffer__contentsize(filelist_filebuffer);
+		break;
 	default:
 		return -ENOENT;
 	}
@@ -178,6 +184,7 @@ static int ts_readdir (const char *path, void *buf, fuse_fill_dir_t filler, off_
 	filler (buf, "inframe", NULL, 0);
 	filler (buf, "outframe", NULL, 0);
 	filler (buf, "rebuild", NULL, 0);
+	filler (buf, "filelist", NULL, 0);
 
 	return 0;
 }
@@ -220,6 +227,7 @@ static int ts_open (const char *path, struct fuse_file_info *fi) {
 	case INDEX_OUTFRAME:
 	case INDEX_OPTS:
 	case INDEX_DURATION:
+	case INDEX_FILELIST:
 	case INDEX_ROOTDIR:
 		return 0;
 	default:
@@ -396,6 +404,8 @@ static int ts_read (const char *path, char *buf, size_t size, off_t offset, stru
 		return string_read_with_length (inframe_str, buf, size, offset, inframe_str_length);
 	case INDEX_OUTFRAME:
 		return string_read_with_length (outframe_str, buf, size, offset, outframe_str_length);
+	case INDEX_FILELIST:
+		return filebuffer__read(filelist_filebuffer, offset, buf, size);
 	case INDEX_OPTS:
 		t = get_opts ();
 		ret = string_read (t, buf, size, offset);
@@ -713,6 +723,22 @@ void prepare_file_attributes (sourcefile_t * list) {
 	init_shotcut_project_file ();
 }
 
+void create_filelist (sourcefile_t * list) {
+	if (filelist_filebuffer == NULL) {
+		filelist_filebuffer = filebuffer__new();
+	}
+	sourcefile_t *last = get_list_tail (list);
+	if (last == NULL) {
+		return;
+	}
+	sourcefile_t *i = list;
+	const char* separator = "\n";
+	while (i != NULL) {
+		filebuffer__append(filelist_filebuffer, i->filename, safe_strlen(i->filename));
+		filebuffer__append(filelist_filebuffer, separator, safe_strlen(separator));
+		i = i->next;
+	}
+}
 
 void handle_sigusr1 (int s) {
 	if (s != SIGUSR1) {
@@ -741,6 +767,7 @@ int main (int argc, char *argv[]) {
 //	sourcefiles = cut_and_merge (sourcefiles, 0, lastframe, NULL, NULL, &sourcefiles_c);
 	update_cutmarks_from_numbers ();
 	prepare_file_attributes (sourcefiles);
+	create_filelist(sourcefiles);
 
 #ifdef DEBUG
 	print_file_chain ("raw", sourcefiles);
