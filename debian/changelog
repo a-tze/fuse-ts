@@ -1,3 +1,12 @@
+fuse-ts (2018.10.18.1) stable; urgency=medium
+
+  * bugfix: fix default video height
+  * feature: provide in-memory logbuffer for better debugging
+  * improvement: get log levels straight
+  * feature: provide plain list of used input files
+
+ -- Matthias Hunstock <atze@fem.tu-ilmenau.de>  Thu, 18 Oct 2018 22:56:39 +0200
+
 fuse-ts (2017.04.29.1) stable; urgency=medium
 
   * bugfix: negative refcount could occur on project files, especially using sshfs
