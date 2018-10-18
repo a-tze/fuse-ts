@@ -22,7 +22,7 @@ char *strptime(const char *buf, const char *format, struct tm *tm);
 char *dupe_str (const char *source) {
 	size_t L = safe_strlen (source);
 	if (L > max_str_len) {
-		fprintf (logging, "Exception: string that is too long - aborting\n");
+		error_printf ("Exception: string that is too long - aborting\n");
 		exit (1000);
 	}
 	char *ret = malloc (L + 1);
@@ -49,7 +49,7 @@ char *merge_str (const char **sources, size_t count) {
 	for (; i < count; i++) {
 		size_t l = safe_strlen (sources[i]);
 		if (l > max_str_len) {
-			fprintf (logging, "Exception: string that is too long - aborting\n");
+			error_printf ("Exception: string that is too long - aborting\n");
 			exit (1002);
 		}
 		LL[i] = l;
@@ -89,7 +89,7 @@ char *append_and_free (char *s1, char *s2) {
 	size_t L1 = safe_strlen (s1);
 	size_t L2 = safe_strlen (s2);
 	if (L1 + L2 > max_str_len) {
-		fprintf (logging, "Exception: string that is too long - aborting\n");
+		error_printf ("Exception: string that is too long - aborting\n");
 		exit (1002);
 	}
 	char *ret = malloc (L1 + L2 + 1);
@@ -303,7 +303,7 @@ int get_unix_timestamp_from_filename (const char *filename) {
 		epoch = mktime(&tm);
 	} else {
 		epoch = 0;
-		fprintf (logging, "Error: Can not parse date and time from filename: %s\n", filename);
+		error_printf ("Error: Can not parse date and time from filename: %s\n", filename);
 	}
 	free(datestring2);
 	return (int) epoch;

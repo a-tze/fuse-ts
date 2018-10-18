@@ -68,9 +68,7 @@ void parse_opts(int * p_argc, char*** p_argv) {
 // parsing options
 	for (i = 1; i < argc; i++) {
 		char * opt = argv[i];
-#ifdef DEBUG
-		printf("examining option '%s' with length %zu\n", opt, strlen(opt));
-#endif
+		debug_printf("examining option '%s' with length %zu\n", opt, strlen(opt));
 
 		if (strncmp(opt, "p=", 2) == 0) {
 			prefix = dupe_str(opt + 2);
@@ -96,7 +94,7 @@ void parse_opts(int * p_argc, char*** p_argv) {
 		}
 		if (strncmp(opt, "c=", 2) == 0) {
 			if (strlen(opt) < 3) {
-				fprintf(logging, "Error: base_dir must not be empty!\n");
+				error_printf("Error: base_dir must not be empty!\n");
 				exit(106);
 			}
 			base_dir = dupe_str(opt + 2);
@@ -104,7 +102,7 @@ void parse_opts(int * p_argc, char*** p_argv) {
 		}
 		if (strncmp(opt, "st=", 3) == 0) {
 			if (strlen(opt) < 4) {
-				fprintf(logging, "Error: capture file name prefix is too short!\n");
+				error_printf("Error: capture file name prefix is too short!\n");
 				exit(105);
 			}
 			start_time = dupe_str(opt + 3);
@@ -128,7 +126,7 @@ void parse_opts(int * p_argc, char*** p_argv) {
 				}
 			}
 			if ((outbyte < 0) || (outbyte > ((off_t)1024 * 1024 * 1024 * 1024 * 1024) /* 1 TiB */)) {
-				fprintf(logging, "Error: outbyte is negative or too big (%" PRId64 ")!\n", outbyte);
+				error_printf("Error: outbyte is negative or too big (%" PRId64 ")!\n", outbyte);
 				exit(102);
 			}
 			continue;
@@ -136,7 +134,7 @@ void parse_opts(int * p_argc, char*** p_argv) {
 		if (strncmp(opt, "numfiles=", 9) == 0) {
 			numfiles = atoi(opt + 9);
 			if ((numfiles < 0) || (numfiles > 100000)) {
-				fprintf(logging, "Error: numfiles is negative or too big (%d)!\n", numfiles);
+				error_printf("Error: numfiles is negative or too big (%d)!\n", numfiles);
 				exit(103);
 			}
 			continue;
@@ -144,7 +142,7 @@ void parse_opts(int * p_argc, char*** p_argv) {
 		if (strncmp(opt, "totalframes=", 12) == 0) {
 			totalframes = atoi(opt + 12);
 			if ((totalframes < 0) || (totalframes > 1000000)) {
-				fprintf(logging, "Error: totalframes is negative or too big (%d)!\n", totalframes);
+				error_printf("Error: totalframes is negative or too big (%d)!\n", totalframes);
 				exit(103);
 			}
 			continue;
@@ -152,7 +150,7 @@ void parse_opts(int * p_argc, char*** p_argv) {
 		if (strncmp(opt, "if=", 3) == 0) {
 			inframe = atoi(opt + 3);
 			if ((inframe < 0) || (inframe > 1080000 /* 12 hours */)) {
-				fprintf(logging, "Error: inframe is too big (%d)!\n", inframe);
+				error_printf("Error: inframe is too big (%d)!\n", inframe);
 				exit(104);
 			}
 			continue;
@@ -160,7 +158,7 @@ void parse_opts(int * p_argc, char*** p_argv) {
 		if (strncmp(opt, "of=", 3) == 0) {
 			outframe = atoi(opt + 3);
 			if ((outframe < 0) || (outframe > 1080000 /* 12 hours */)) {
-				fprintf(logging, "Error: outframe is too big (%d)!\n", outframe);
+				error_printf("Error: outframe is too big (%d)!\n", outframe);
 				exit(103);
 			}
 			continue;
@@ -168,7 +166,7 @@ void parse_opts(int * p_argc, char*** p_argv) {
 		if (strncmp(opt, "fps=", 4) == 0) {
 			frames_per_second = atoi(opt + 4);
 			if (frames_per_second < 0) {
-				fprintf(logging, "Error: frames per second can not be negative!\n");
+				error_printf("Error: frames per second can not be negative!\n");
 				exit(106);
 			}
 			continue;
@@ -176,7 +174,7 @@ void parse_opts(int * p_argc, char*** p_argv) {
 		if (strncmp(opt, "width=", 6) == 0) {
 			width = atoi(opt + 6);
 			if (width < 0) {
-				fprintf(logging, "Error: width can not be negative!\n");
+				error_printf("Error: width can not be negative!\n");
 				exit(107);
 			}
 			continue;
@@ -184,7 +182,7 @@ void parse_opts(int * p_argc, char*** p_argv) {
 		if (strncmp(opt, "height=", 7) == 0) {
                         height = atoi(opt + 7);
                         if (height < 0) {
-                                fprintf(logging, "Error: height can not be negative!\n");
+                                error_printf("Error: height can not be negative!\n");
 				exit(108);
                         }
                         continue;
@@ -198,24 +196,24 @@ void parse_opts(int * p_argc, char*** p_argv) {
 		prefix = dupe_str("");
 	}
 	if (base_dir == NULL) {
-		fprintf(logging, "base_dir must be given!\n");
+		error_printf("base_dir must be given!\n");
 		exit(100);
 	}
 	if (start_time == NULL) {
-		fprintf(logging, "capture filename prefix must be given!\n");
+		error_printf("capture filename prefix must be given!\n");
 		exit(100);
 	}
 	if (outbyte < 0 && numfiles < 0) {
-		fprintf(logging, "outbyte or numfiles must be given!\n");
+		error_printf("outbyte or numfiles must be given!\n");
 		exit(100);
 	}
 	if (slidemode != 0 && outro_file != NULL) {
-		fprintf(logging, "WARNING: ignoring outro in slidemode.\n");
+		error_printf("WARNING: ignoring outro in slidemode.\n");
 		free(outro_file);
 		outro_file = NULL;
 	}
 	if (slidemode != 0 && intro_file != NULL) {
-		fprintf(logging, "WARNING: ignoring intro in slidemode.\n");
+		error_printf("WARNING: ignoring intro in slidemode.\n");
 		free(intro_file);
 		intro_file = NULL;
 	}

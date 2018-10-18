@@ -126,7 +126,7 @@ int list_count (sourcefile_t * root) {
 
 sourcefile_t **list_to_array (sourcefile_t * root, int *num) {
 	if (root == NULL) {
-		fprintf (logging, "Error: empty list encountered!\n");
+		error_printf ("Error: empty list encountered!\n");
 		exit (110);
 	}
 	int c = list_count (root);
@@ -269,7 +269,7 @@ sourcefile_t *drop_list_tail (sourcefile_t * list) {
 	}
 	sourcefile_t *t = get_list_tail (list);
 	if (t == NULL) {
-		fprintf (logging, "Strange things happen!\n");
+		error_printf ("Strange things happen!\n");
 		exit (114);
 	}
 	sourcefile_t *p = NULL;
@@ -300,7 +300,7 @@ sourcefile_t *drop_list_head (sourcefile_t * list) {
 
 sourcefile_t *add_file_to_list (sourcefile_t * list, sourcefile_t * entry) {
 	if (entry == NULL) {
-		fprintf (logging, "Error: null pointer!\n");
+		error_printf ("Error: null pointer!\n");
 		exit (111);
 	}
 

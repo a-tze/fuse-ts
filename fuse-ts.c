@@ -272,11 +272,11 @@ static int ts_truncate (const char *path, off_t size) {
 
 int ts_data_do_read (sourcefile_t * file, char *buf, size_t size, off_t fileoffset) {
 	if (file == NULL) {
-		debug_printf ("Something went terribly wrong while reading: filepiece pointer NULL was given\n");
+		error_printf ("Something went terribly wrong while reading: filepiece pointer NULL was given\n");
 		return 0;
 	}
 	if (file->filename == NULL) {
-		debug_printf ("Something went terribly wrong while reading: filepiece has NULL filename\n");
+		error_printf ("Something went terribly wrong while reading: filepiece has NULL filename\n");
 		return 0;
 	}
 	//debug_printf("trying to give out %d bytes at position %" PRId64 " of file '%s'\n", size, fileoffset, file->filename);
@@ -284,8 +284,7 @@ int ts_data_do_read (sourcefile_t * file, char *buf, size_t size, off_t fileoffs
 		file->fhandle = fopen (file->filename, "r");
 		if (file->fhandle == NULL) {
 			// the file is not accessible. what now? panic!
-			debug_printf ("ERROR: can not open file '%s' for reading!\n", file->filename);
-			fprintf (logging, "ERROR: can not open file '%s' for reading!\n", file->filename);
+			error_printf ("ERROR: can not open file '%s' for reading!\n", file->filename);
 			return 0;
 			//exit(121);
 		}
@@ -301,8 +300,7 @@ int ts_data_do_read (sourcefile_t * file, char *buf, size_t size, off_t fileoffs
 			debug_printf ("continuing read of '%s'\n", file->filename);
 			rsize = fread (buf + rsize_cum, 1, file->filesize - rsize_cum, f);
 			if (rsize <= 0) {
-				debug_printf ("ERROR: file could not be read completely: '%s' !\n", file->filename);
-				fprintf (logging, "ERROR: file could not be read completely: '%s' !\n", file->filename);
+				error_printf ("ERROR: file could not be read completely: '%s' !\n", file->filename);
 				return rsize_cum;
 			}
 			debug_printf ("successfully read %d bytes of file '%s'\n", rsize, file->filename);
@@ -312,8 +310,7 @@ int ts_data_do_read (sourcefile_t * file, char *buf, size_t size, off_t fileoffs
 	} else {
 		void * framebuf = malloc(file->filesize);
 		if (framebuf == NULL) {
-			debug_printf ("ERROR: cannot allocate memory\n");
-			fprintf (logging, "ERROR: cannot allocate memory\n");
+			error_printf ("ERROR: cannot allocate memory\n");
 			return 0;
 		}
 		fseek (f, 0, SEEK_SET);
@@ -324,8 +321,7 @@ int ts_data_do_read (sourcefile_t * file, char *buf, size_t size, off_t fileoffs
 			debug_printf ("continuing read of '%s'\n", file->filename);
 			rsize = fread (framebuf + rsize_cum, 1, file->filesize - rsize_cum, f);
 			if (rsize <= 0) {
-				debug_printf ("ERROR: file could not be read completely: '%s' !\n", file->filename);
-				fprintf (logging, "ERROR: file could not be read completely: '%s' !\n", file->filename);
+				error_printf ("ERROR: file could not be read completely: '%s' !\n", file->filename);
 				free(framebuf);
 				return 0;
 			}
@@ -427,7 +423,7 @@ static int ts_read (const char *path, char *buf, size_t size, off_t offset, stru
 			return -ENOENT;
 		return shotcut_read (path, buf, size, offset, rawName, totalframes, blanklen);
 	}
-	debug_printf ("Path not found: '%s' \n", path);
+	error_printf ("Path not found: '%s' \n", path);
 	return -ENOENT;
 }
 
@@ -543,7 +539,7 @@ int ts_setxattr (const char * path, const char *name, const char *value, size_t 
 	if (strcmp (name, "trusted.gfid") != 0) return 0;
 	int entrynr = get_index_from_pathname(path);
 	if (entrynr < 0) {
-		debug_printf ("setxattr: unknown path\n");
+		error_printf ("setxattr: unknown path\n");
 		return -ENOENT;
 	}
 	int exists = 0;
@@ -553,12 +549,12 @@ int ts_setxattr (const char * path, const char *name, const char *value, size_t 
 	// evaluate flags
 	if (((flags | XATTR_CREATE) == XATTR_CREATE) && exists > 0) {
 		// fail if attribute exists
-		debug_printf ("setxattr: failing because attribute already exists and create flag given\n");
+		error_printf ("setxattr: failing because attribute already exists and create flag given\n");
 		return -EEXIST;
 	}
 	if (((flags | XATTR_REPLACE) == XATTR_REPLACE) && exists == 0) {
 		// fail if attribute doesn't exist
-		debug_printf ("setxattr: failing because attribute doesn't exist and replace flag given\n");
+		error_printf ("setxattr: failing because attribute doesn't exist and replace flag given\n");
 		return -126; //-ENOATTR;
 	}
 
@@ -576,7 +572,7 @@ int ts_setxattr (const char * path, const char *name, const char *value, size_t 
 		char * temp = malloc(vlen + 1);
 		if (temp == NULL) {
 			// no memory left
-			debug_printf ("setxattr: memory allocation failure\n");
+			error_printf ("setxattr: memory allocation failure\n");
 			return -ENOSPC;
 		}
 		gfid[entrynr] = temp;
@@ -637,7 +633,7 @@ void update_times_from_cutmarks() {
 	intime_str = update_string_string (intime_str, intime, &intime_str_length);
 	outtime_str = update_string_string (outtime_str, outtime, &outtime_str_length);
 	duration_str = update_string_string (duration_str, duration, &duration_str_length);
-	debug_printf("intime is %s, outtime is %s, duration is %s\n", intime_str, outtime_str, duration_str);
+	info_printf("intime is %s, outtime is %s, duration is %s\n", intime_str, outtime_str, duration_str);
 }
 
 void update_cutmarks_from_numbers () {
@@ -651,7 +647,7 @@ void update_cutmarks_from_strings () {
 	if (inframe_str_length > 0) {
 		t = atoi (inframe_str);
 		if ((t < 0) || (t > 1080000 /* 12 hours */ )) {
-			debug_printf ("Error: new inframe is too big (%d)!\n", t);
+			error_printf ("Error: new inframe is too big (%d)!\n", t);
 		} else {
 			inframe = t;
 		}
@@ -659,7 +655,7 @@ void update_cutmarks_from_strings () {
 	if (outframe_str_length > 0) {
 		t = atoi (outframe_str);
 		if ((t < 0) || (t > 1080000 /* 12 hours */ )) {
-			debug_printf ("Error: new outframe is too big (%d)!\n", t);
+			error_printf ("Error: new outframe is too big (%d)!\n", t);
 		} else {
 			outframe = t;
 		}
@@ -695,11 +691,11 @@ sourcefile_t *init_sourcefiles () {
 				reorganize_slide_list(finallist);
 			}
 			if (outbyte > 0 && get_list_tail (finallist)->totalsize >= outbyte) {
-				debug_printf("Stop searching for input files because outbyte bytes (%" PRId64 ") have been found.\n", outbyte);
+				info_printf("Stop searching for input files because outbyte bytes (%" PRId64 ") have been found.\n", outbyte);
 				break;
 			}
 			if (numfiles > 0 && n >= numfiles) {
-				debug_printf("Stop searching for input files because numfiles files (%d) have been found.\n", numfiles);
+				info_printf("Stop searching for input files because numfiles files (%d) have been found.\n", numfiles);
 				break;
 			}
 		}
@@ -710,7 +706,7 @@ sourcefile_t *init_sourcefiles () {
 	if (iter == NULL) {
 		error_printf ("I did not register any files!\n");
 	} else {
-		debug_printf ("I registered %d input files with a total of %" PRId64 " bytes.\n", list_count (finallist), iter->totalsize);
+		info_printf ("I registered %d input files with a total of %" PRId64 " bytes.\n", list_count (finallist), iter->totalsize);
 	}
 	return finallist;
 }
