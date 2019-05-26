@@ -49,6 +49,9 @@ filebuffer_t* get_shotcut_project_file_cache (const char *filename, int num_fram
 }
 
 size_t get_shotcut_project_file_size (const char *filename, int num_frames, int blanklen) {
+	if (sc_writebuffer != NULL)
+		return filebuffer__contentsize(sc_writebuffer);
+
 	filebuffer_t* fb = get_shotcut_project_file_cache (filename, num_frames, blanklen);
 	return filebuffer__contentsize(fb);
 }

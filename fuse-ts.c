@@ -65,6 +65,8 @@ size_t outframe_str_length = 0;
 char *mountpoint = NULL;
 time_t crtime = 0;
 
+char *shotcut_tmp_path = NULL;
+
 // used for storing glusters gfid:
 
 char* gfid[17] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
@@ -99,6 +101,8 @@ static int ts_getattr (const char *path, struct stat *stbuf) {
 	if (entrynr < 0) return -ENOENT;
 	if ((entrynr == INDEX_KDENLIVE || entrynr == INDEX_SHOTCUT)
 		&& totalframes < 0)
+		return -ENOENT;
+	if (entrynr == INDEX_SHOTCUT_TMP && shotcut_tmp_path == NULL)
 		return -ENOENT;
 
 	stbuf->st_ino = (pid_nr << 16) | entrynr;
@@ -144,6 +148,7 @@ static int ts_getattr (const char *path, struct stat *stbuf) {
 		stbuf->st_size = get_kdenlive_project_file_size (rawName + 1, totalframes, blanklen);
 		break;
 	case INDEX_SHOTCUT:
+	case INDEX_SHOTCUT_TMP:
 		stbuf->st_mode = S_IFREG | 0666;
 		stbuf->st_size = 0;
 		stbuf->st_size = get_shotcut_project_file_size (rawName + 1, totalframes, blanklen);
@@ -179,6 +184,9 @@ static int ts_readdir (const char *path, void *buf, fuse_fill_dir_t filler, off_
 		filler (buf, kdenlive_path + 1, NULL, 0);
 		filler (buf, shotcut_path + 1, NULL, 0);
 	}
+	if (shotcut_tmp_path) {
+		filler (buf, shotcut_tmp_path + 1, NULL, 0);
+	}
 	filler (buf, opts_path + 1, NULL, 0);
 	filler (buf, "pid", NULL, 0);
 	filler (buf, "intime", NULL, 0);
@@ -191,6 +199,20 @@ static int ts_readdir (const char *path, void *buf, fuse_fill_dir_t filler, off_
 	filler (buf, "log", NULL, 0);
 
 	return 0;
+}
+
+static int ts_create (const char* path, mode_t mode, struct fuse_file_info *fi) {
+	debug_printf ("create called on '%s'\n", path);
+
+	if (strncmp (path, "/shotcut-", 9) == 0) {
+		fi->fh = 0;
+		if (shotcut_tmp_path) free(shotcut_tmp_path);
+		shotcut_tmp_path = dupe_str(path);
+		open_shotcut_project_file (rawName + 1, totalframes, blanklen, 1);
+		return 0;
+	}
+	if (get_index_from_pathname(path) >= 0) return -EEXIST;
+	return -EINVAL;
 }
 
 static int ts_open (const char *path, struct fuse_file_info *fi) {
@@ -220,6 +242,7 @@ static int ts_open (const char *path, struct fuse_file_info *fi) {
 		open_kdenlive_project_file (rawName + 1, totalframes, blanklen, ((fi->flags & O_TRUNC) > 0));
 		return 0;
 	case INDEX_SHOTCUT:
+	case INDEX_SHOTCUT_TMP:
 		if (totalframes < 0)
 			return -ENOENT;
 		open_shotcut_project_file (rawName + 1, totalframes, blanklen, ((fi->flags & O_TRUNC) > 0));
@@ -251,6 +274,7 @@ static int ts_truncate (const char *path, off_t size) {
 	case INDEX_KDENLIVE:
 		return truncate_kdenlive_project_file(size);
 	case INDEX_SHOTCUT:
+	case INDEX_SHOTCUT_TMP:
 		return truncate_shotcut_project_file(size);
 	case INDEX_INFRAME:
 		tmp = truncate_buffer(&inframe_str, inframe_str_length, size);
@@ -419,6 +443,7 @@ static int ts_read (const char *path, char *buf, size_t size, off_t offset, stru
 			return -ENOENT;
 		return kdenlive_read (path, buf, size, offset, rawName, totalframes, blanklen);
 	case INDEX_SHOTCUT:
+	case INDEX_SHOTCUT_TMP:
 		if (totalframes < 0)
 			return -ENOENT;
 		return shotcut_read (path, buf, size, offset, rawName, totalframes, blanklen);
@@ -434,6 +459,7 @@ int ts_write (const char *path, const char *buf, size_t size, off_t offset, stru
 	case INDEX_KDENLIVE:
 		return write_kdenlive_project_file (buf, size, offset);
 	case INDEX_SHOTCUT:
+	case INDEX_SHOTCUT_TMP:
 		return write_shotcut_project_file (buf, size, offset);
 	case INDEX_INFRAME:
 		return write_to_buffer (buf, size, offset, &inframe_str, &inframe_str_length);
@@ -468,6 +494,7 @@ int ts_release (const char *filename, struct fuse_file_info *info) {
 		close_kdenlive_project_file ();
 		break;
 	case INDEX_SHOTCUT:
+	case INDEX_SHOTCUT_TMP:
 		if (totalframes < 0)
 			return -ENOENT;
 		if (find_cutmarks_in_shotcut_project_file (&inframe, &outframe, &blanklen) == 0) {
@@ -477,6 +504,10 @@ int ts_release (const char *filename, struct fuse_file_info *info) {
 			pthread_mutex_unlock (&globalmutex);
 		}
 		close_shotcut_project_file ();
+		if (entrynr == INDEX_SHOTCUT_TMP && shotcut_tmp_path != NULL) {
+			free(shotcut_tmp_path);
+			shotcut_tmp_path = NULL;
+		}
 		break;
 	case INDEX_INFRAME:
 	case INDEX_OUTFRAME:
@@ -590,6 +621,7 @@ static struct fuse_operations ts_oper = {
 	.getxattr = ts_getxattr,
 	.setxattr = ts_setxattr,
 	.readdir = ts_readdir,
+	.create = ts_create,
 	.open = ts_open,
 	.read = ts_read,
 	.write = ts_write,

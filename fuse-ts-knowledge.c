@@ -38,6 +38,8 @@ int get_index_from_pathname(const char* path) {
 		return INDEX_KDENLIVE;
 	} else if (strcmp (path, shotcut_path) == 0) {
 		return INDEX_SHOTCUT;
+	} else if (path == strstr(path, "/shotcut-") && shotcut_tmp_path) {
+		return INDEX_SHOTCUT_TMP;
 	} else if (strcmp (path, "/rebuild") == 0) {
 		return INDEX_REBUILD;
 	} else if (strcmp (path, "/filelist") == 0) {

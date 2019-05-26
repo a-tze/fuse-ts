@@ -19,6 +19,7 @@ extern int get_index_from_pathname(const char* path);
 #define 	INDEX_SHOTCUT_WIN	13	// Index for '/project_shotcut_win.mlt'
 #define 	INDEX_FILELIST		14	// Index for '/filelist'
 #define 	INDEX_LOG		15	// Index for '/log'
+#define 	INDEX_SHOTCUT_TMP	16	// Index for '/shotcut-?????.mlt'
 
 
 #endif
