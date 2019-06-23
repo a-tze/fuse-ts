@@ -1,3 +1,9 @@
+fuse-ts (2019.06.23.1) stable; urgency=medium
+
+  * feature: support Shotcut >= 19.x (tries to write temporary project file)
+
+ -- Matthias Hunstock <atze@fem.tu-ilmenau.de>  Sun, 23 Jun 2019 23:44:23 +0200
+
 fuse-ts (2018.10.18.1) stable; urgency=medium
 
   * bugfix: fix default video height
