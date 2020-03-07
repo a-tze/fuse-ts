@@ -32,6 +32,7 @@ extern int blanklen;
 extern char * intime;
 extern char * outtime;
 extern int slidemode;
+extern int growing_mode;
 extern char * intro_file;
 extern char * outro_file;
 extern off_t outbyte;

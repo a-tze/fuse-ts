@@ -43,6 +43,7 @@ int width = 1920;
 int height = 1080;
 off_t outbyte = 0;
 int slidemode = 0;
+int growing_mode = 0;
 const char *rawName = "/uncut.ts";
 const char *durationName = "/duration";
 
@@ -226,7 +227,10 @@ static int ts_open (const char *path, struct fuse_file_info *fi) {
 			return -EACCES;
 		check_signal ();
 		pthread_mutex_lock (&globalmutex);
-		fi->fh = insert_into_filechains_list (sourcefiles) + 1;
+		if (!growing_mode)
+			fi->fh = insert_into_filechains_list (sourcefiles) + 1;
+		else
+			fi->fh = 1;
 		fi->keep_cache = 1;
 		pthread_mutex_unlock (&globalmutex);
 		break;
@@ -478,9 +482,11 @@ int ts_release (const char *filename, struct fuse_file_info *info) {
 	if (entrynr < 0) return -ENOENT;
 	switch(entrynr) {
 	case INDEX_RAW:
-		pthread_mutex_lock (&globalmutex);
-		remove_from_filechains_list (info->fh - 1);
-		pthread_mutex_unlock (&globalmutex);
+		if (!growing_mode) {
+			pthread_mutex_lock (&globalmutex);
+			remove_from_filechains_list (info->fh - 1);
+			pthread_mutex_unlock (&globalmutex);
+		}
 		break;
 	case INDEX_KDENLIVE:
 		if (totalframes < 0)
@@ -643,15 +649,24 @@ void check_signal (void) {
 
 		palimmpalimm = 0;
 		sourcefile_t *newsources = init_sourcefiles ();
+		sourcefile_t *oldsources = sourcefiles;
 		int newsize = 0;
 //		newsources = cut_and_merge (newsources, 0, lastframe, NULL, NULL, &newsize);
-		if (sourcefiles->refcnt == 0) {
-			purge_list (sourcefiles);
-		} else {
-			sourcefiles->refcnt--;
-		}
+
 		sourcefiles_c = newsize;
 		sourcefiles = newsources;
+
+		if (growing_mode) {
+			if (filechains_size > 0)
+				filechains[0] = newsources;
+			else
+				insert_into_filechains_list(newsources);
+		}
+		if (sourcefiles->refcnt == 0 || growing_mode) {
+			purge_list (oldsources);
+		} else {
+			oldsources->refcnt--;
+		}
 		prepare_file_attributes (sourcefiles);
 		rebuild_opts ();
 		// end of lock
@@ -801,6 +816,7 @@ int main (int argc, char *argv[]) {
 	time(&crtime);
 	sourcefiles = init_sourcefiles ();
 //	sourcefiles = cut_and_merge (sourcefiles, 0, lastframe, NULL, NULL, &sourcefiles_c);
+	if (growing_mode) insert_into_filechains_list(sourcefiles);
 	update_cutmarks_from_numbers ();
 	prepare_file_attributes (sourcefiles);
 	create_filelist(sourcefiles);
