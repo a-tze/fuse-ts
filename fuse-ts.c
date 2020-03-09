@@ -65,6 +65,7 @@ size_t outframe_str_length = 0;
 
 char *mountpoint = NULL;
 time_t crtime = 0;
+time_t mtime = 0;
 
 char *shotcut_tmp_path = NULL;
 
@@ -116,9 +117,11 @@ static int ts_getattr (const char *path, struct stat *stbuf) {
 	case INDEX_ROOTDIR:
 		stbuf->st_mode = S_IFDIR | 0777;
 		stbuf->st_nlink = 2;
+		stbuf->st_mtime = mtime;
 		break;
 	case INDEX_RAW:
 		stbuf->st_size = file_length;
+		stbuf->st_mtime = mtime;
 		break;
 	case INDEX_PID:
 		stbuf->st_size = safe_strlen (pid);
@@ -667,6 +670,7 @@ void check_signal (void) {
 		} else {
 			oldsources->refcnt--;
 		}
+		time(&mtime);
 		prepare_file_attributes (sourcefiles);
 		rebuild_opts ();
 		// end of lock
@@ -814,6 +818,7 @@ int main (int argc, char *argv[]) {
 	char **argv_new = argv;
 	parse_opts (&argc_new, &argv_new);
 	time(&crtime);
+	time(&mtime);
 	sourcefiles = init_sourcefiles ();
 //	sourcefiles = cut_and_merge (sourcefiles, 0, lastframe, NULL, NULL, &sourcefiles_c);
 	if (growing_mode) insert_into_filechains_list(sourcefiles);
