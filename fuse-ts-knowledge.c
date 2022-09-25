@@ -36,6 +36,8 @@ int get_index_from_pathname(const char* path) {
 		return INDEX_DURATION;
 	} else if (strcmp (path, kdenlive_path) == 0) {
 		return INDEX_KDENLIVE;
+	} else if (path == strstr(path, "/project.kdenlive.") && kdenlive_tmp_path) {
+		return INDEX_KDENLIVE_TMP;
 	} else if (strcmp (path, shotcut_path) == 0) {
 		return INDEX_SHOTCUT;
 	} else if (path == strstr(path, "/shotcut-") && shotcut_tmp_path) {

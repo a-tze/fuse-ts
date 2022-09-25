@@ -22,6 +22,7 @@ static const int read_block_size = 65536;
 extern FILE* logging;
 extern filebuffer_t* log_filebuffer;
 extern char * shotcut_tmp_path;
+extern char * kdenlive_tmp_path;
 
 extern char * base_dir ;
 extern char * start_time;

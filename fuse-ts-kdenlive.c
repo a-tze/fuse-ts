@@ -124,6 +124,28 @@ void close_kdenlive_project_file () {
 	}
 }
 
+static int parse_time_string(const char *in_str)
+{
+	double sum = 0;
+	const char *token_ptr = in_str;
+	const char *sep_ptr;
+	while ((sep_ptr = strchr(token_ptr, ':')))
+	{
+		double t = atof(token_ptr);
+		if (sum < 0)
+			sum = 60*sum - t;
+		else
+			sum = 60*sum + t;
+		token_ptr = sep_ptr+1;
+	}
+	double t = atof(token_ptr);
+	if (sum < 0)
+		sum = 60*sum - t;
+	else
+		sum = 60*sum + t;
+	return (int) (sum * frames_per_second);
+}
+
 int find_cutmarks_in_kdenlive_project_file (int *inframe, int *outframe, int *blanklen) {
 	if (kl_writebuffer == NULL) {
 		debug_printf ("find_cutmarks: file has not been written to.\n");
@@ -144,7 +166,7 @@ int find_cutmarks_in_kdenlive_project_file (int *inframe, int *outframe, int *bl
 		return 1;
 	}
 	mxml_node_t *node, *subnode;
-	node = mxmlFindElement (xmldoc, xmldoc, "playlist", "id", "playlist1", MXML_DESCEND);
+	node = mxmlFindElement (xmldoc, xmldoc, "playlist", "id", "playlist0", MXML_DESCEND);
 	if (NULL == node) {
 		debug_printf ("find_cutmarks: node with id 'playlist1' not found!\n");
 		mxmlRelease (xmldoc);
@@ -158,7 +180,7 @@ int find_cutmarks_in_kdenlive_project_file (int *inframe, int *outframe, int *bl
 	} else {
 		const char *strblank = mxmlElementGetAttr (subnode, "length");
 		if (NULL != strblank) {
-			blank = atoi (strblank);
+			blank = parse_time_string (strblank);
 			if (blank < 0) {
 				debug_printf ("find_cutmarks: node 'blank' contains negative value - assuming 0!\n");
 				blank = 0;
@@ -189,8 +211,8 @@ int find_cutmarks_in_kdenlive_project_file (int *inframe, int *outframe, int *bl
 		return 5;
 	}
 	debug_printf ("find_cutmarks: found attributes in='%s' out='%s'\n", strin, strout);
-	int in = atoi (strin);
-	int out = atoi (strout);
+	int in = parse_time_string (strin);
+	int out = parse_time_string (strout);
 	mxmlRelease (xmldoc);
 	if (0 > in) {
 		debug_printf ("find_cutmarks: inpoint invalid!\n");
