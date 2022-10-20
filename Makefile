@@ -20,5 +20,10 @@ $(OBJS) fuse-ts.o fuse-vdv-test.o: %.o: %.c *.h
 fuse-ts: $(OBJS) fuse-ts.o
 	$(CC) $(OBJS) fuse-ts.o $(LFLAGS) -o fuse-ts
 
+deb:
+	dpkg-buildpackage -us -uc
+
 clean:
 	rm -f *.o fuse-ts fuse-ts-test
+
+.PHONY: clean deb
