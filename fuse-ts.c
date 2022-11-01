@@ -463,6 +463,16 @@ static int ts_read (const char *path, char *buf, size_t size, off_t offset, stru
 	return -ENOENT;
 }
 
+void try_parse_shotcut_file() {
+	debug_printf("try_parse_shotcut_file");
+	if (find_cutmarks_in_shotcut_project_file (&inframe, &outframe, &blanklen) == 0) {
+		pthread_mutex_lock (&globalmutex);
+		rebuild_opts ();
+		update_cutmarks_from_numbers();
+		pthread_mutex_unlock (&globalmutex);
+	}
+}
+
 int ts_write (const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *info) {
 	int entrynr = get_index_from_pathname(path);
 	if (entrynr < 0) return -ENOENT;
@@ -470,8 +480,11 @@ int ts_write (const char *path, const char *buf, size_t size, off_t offset, stru
 	case INDEX_KDENLIVE:
 	case INDEX_KDENLIVE_TMP:
 		return write_kdenlive_project_file (buf, size, offset);
-	case INDEX_SHOTCUT:
-		return write_shotcut_project_file (buf, size, offset);
+	case INDEX_SHOTCUT: {
+		int ret = write_shotcut_project_file (buf, size, offset);
+		try_parse_shotcut_file();
+		return ret;
+	}
 	case INDEX_INFRAME:
 		return write_to_buffer (buf, size, offset, &inframe_str, &inframe_str_length);
 	case INDEX_OUTFRAME:
@@ -508,12 +521,7 @@ int ts_release (const char *filename, struct fuse_file_info *info) {
 	case INDEX_SHOTCUT:
 		if (totalframes < 0)
 			return -ENOENT;
-		if (find_cutmarks_in_shotcut_project_file (&inframe, &outframe, &blanklen) == 0) {
-			pthread_mutex_lock (&globalmutex);
-			rebuild_opts ();
-			update_cutmarks_from_numbers();
-			pthread_mutex_unlock (&globalmutex);
-		}
+		try_parse_shotcut_file ();
 		close_shotcut_project_file ();
 		if (entrynr == INDEX_SHOTCUT_TMP && shotcut_tmp_path != NULL) {
 			free(shotcut_tmp_path);
