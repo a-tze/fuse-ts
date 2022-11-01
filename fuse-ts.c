@@ -105,8 +105,8 @@ static int ts_getattr (const char *path, struct stat *stbuf) {
 		return -ENOENT;
 	if (entrynr == INDEX_KDENLIVE_TMP && kdenlive_tmp_path == NULL)
 		return -ENOENT;
-	if (entrynr == INDEX_SHOTCUT_TMP && shotcut_tmp_path == NULL)
-		return -ENOENT;
+	//if (entrynr == INDEX_SHOTCUT_TMP && shotcut_tmp_path == NULL)
+	//	return -ENOENT;
 
 	stbuf->st_ino = (pid_nr << 16) | entrynr;
 	stbuf->st_mode = S_IFREG | 0444;
@@ -152,7 +152,7 @@ static int ts_getattr (const char *path, struct stat *stbuf) {
 		stbuf->st_size = get_kdenlive_project_file_size (rawName + 1, totalframes, blanklen);
 		break;
 	case INDEX_SHOTCUT:
-	case INDEX_SHOTCUT_TMP:
+	//case INDEX_SHOTCUT_TMP:
 		stbuf->st_mode = S_IFREG | 0666;
 		stbuf->st_size = 0;
 		stbuf->st_size = get_shotcut_project_file_size (rawName + 1, totalframes, blanklen);
@@ -210,7 +210,9 @@ static int ts_readdir (const char *path, void *buf, fuse_fill_dir_t filler, off_
 
 static int ts_create (const char* path, mode_t mode, struct fuse_file_info *fi) {
 	debug_printf ("create called on '%s'\n", path);
-
+	if (strncmp (path, "/shotcut-", 9) == 0) {
+		return -EACCES;
+/*
 	if (strncmp (path, "/shotcut-", 9) == 0) {
 		fi->fh = 0;
 		if (shotcut_tmp_path) free(shotcut_tmp_path);
@@ -218,6 +220,7 @@ static int ts_create (const char* path, mode_t mode, struct fuse_file_info *fi) 
 		open_shotcut_project_file (rawName + 1, totalframes, blanklen, 1);
 		return 0;
 	}
+*/
 	if (strncmp (path, "/project.kdenlive.", 18) == 0) {
 		fi->fh = 0;
 		if (kdenlive_tmp_path) free(kdenlive_tmp_path);
@@ -257,11 +260,13 @@ static int ts_open (const char *path, struct fuse_file_info *fi) {
 		open_kdenlive_project_file (rawName + 1, totalframes, blanklen, ((fi->flags & O_TRUNC) > 0));
 		return 0;
 	case INDEX_SHOTCUT:
-	case INDEX_SHOTCUT_TMP:
+	//case INDEX_SHOTCUT_TMP:
 		if (totalframes < 0)
 			return -ENOENT;
 		open_shotcut_project_file (rawName + 1, totalframes, blanklen, ((fi->flags & O_TRUNC) > 0));
 		return 0;
+	case INDEX_SHOTCUT_TMP:
+		return -EACCES;
 	case INDEX_PID:
 	case INDEX_INTIME:
 	case INDEX_OUTTIME:
@@ -290,7 +295,7 @@ static int ts_truncate (const char *path, off_t size) {
 	case INDEX_KDENLIVE_TMP:
 		return truncate_kdenlive_project_file(size);
 	case INDEX_SHOTCUT:
-	case INDEX_SHOTCUT_TMP:
+	//case INDEX_SHOTCUT_TMP:
 		return truncate_shotcut_project_file(size);
 	case INDEX_INFRAME:
 		tmp = truncate_buffer(&inframe_str, inframe_str_length, size);
@@ -460,10 +465,11 @@ static int ts_read (const char *path, char *buf, size_t size, off_t offset, stru
 			return -ENOENT;
 		return kdenlive_read (path, buf, size, offset, rawName, totalframes, blanklen);
 	case INDEX_SHOTCUT:
-	case INDEX_SHOTCUT_TMP:
 		if (totalframes < 0)
 			return -ENOENT;
 		return shotcut_read (path, buf, size, offset, rawName, totalframes, blanklen);
+	case INDEX_SHOTCUT_TMP:
+		return -EACCES;
 	}
 	error_printf ("Path not found: '%s' \n", path);
 	return -ENOENT;
@@ -477,7 +483,7 @@ int ts_write (const char *path, const char *buf, size_t size, off_t offset, stru
 	case INDEX_KDENLIVE_TMP:
 		return write_kdenlive_project_file (buf, size, offset);
 	case INDEX_SHOTCUT:
-	case INDEX_SHOTCUT_TMP:
+	//case INDEX_SHOTCUT_TMP:
 		return write_shotcut_project_file (buf, size, offset);
 	case INDEX_INFRAME:
 		return write_to_buffer (buf, size, offset, &inframe_str, &inframe_str_length);
@@ -513,7 +519,7 @@ int ts_release (const char *filename, struct fuse_file_info *info) {
 		close_kdenlive_project_file ();
 		break;
 	case INDEX_SHOTCUT:
-	case INDEX_SHOTCUT_TMP:
+	//case INDEX_SHOTCUT_TMP:
 		if (totalframes < 0)
 			return -ENOENT;
 		if (find_cutmarks_in_shotcut_project_file (&inframe, &outframe, &blanklen) == 0) {
