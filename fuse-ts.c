@@ -710,6 +710,8 @@ void update_cutmarks_from_strings () {
 			error_printf ("Error: new inframe is too big (%d)!\n", t);
 		} else {
 			inframe = t;
+			// write filtered value back to string to chop it
+			inframe_str = update_int_string (inframe_str, inframe, &inframe_str_length);
 		}
 	}
 	if (outframe_str_length > 0) {
@@ -718,6 +720,8 @@ void update_cutmarks_from_strings () {
 			error_printf ("Error: new outframe is too big (%d)!\n", t);
 		} else {
 			outframe = t;
+			// write filtered value back to string to chop it
+			outframe_str = update_int_string (outframe_str, outframe, &outframe_str_length);
 		}
 	}
 	update_times_from_cutmarks();
