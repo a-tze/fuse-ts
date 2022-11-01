@@ -1,3 +1,14 @@
+fuse-ts (2022.11.15.1) stable; urgency=low
+
+  [ MazderMind ]
+  * Add support for Shotcut 22 and fps other than 25
+     - add support for Shotcut 22 temp files
+     - add support for Shotcut 22 MLT xml
+     - denote fps in Shotcut file
+     - parse shotcut file on every write
+
+ -- Matthias Hunstock <atze@fem.tu-ilmenau.de>  Tue, 11 Nov 2022 17:36:23 +0200
+
 fuse-ts (2022.09.25.1) stable; urgency=medium
 
   * change: change content of virtual KDEnlive project file to support current versions of KDEnlive (21.04 / 22.04)
