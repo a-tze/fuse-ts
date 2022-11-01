@@ -40,7 +40,10 @@ int get_index_from_pathname(const char* path) {
 		return INDEX_KDENLIVE_TMP;
 	} else if (strcmp (path, shotcut_path) == 0) {
 		return INDEX_SHOTCUT;
-	} else if (path == strstr(path, "/shotcut-") && shotcut_tmp_path) {
+	} else if (shotcut_tmp_path && (
+		(strncmp (path, "/shotcut-", 9) == 0) ||
+		(strncmp (path, "/project_shotcut.mlt.", 21) == 0)
+	)) {
 		return INDEX_SHOTCUT_TMP;
 	} else if (strcmp (path, "/rebuild") == 0) {
 		return INDEX_REBUILD;

@@ -210,8 +210,10 @@ static int ts_readdir (const char *path, void *buf, fuse_fill_dir_t filler, off_
 
 static int ts_create (const char* path, mode_t mode, struct fuse_file_info *fi) {
 	debug_printf ("create called on '%s'\n", path);
-	if (strncmp (path, "/shotcut-", 9) == 0) {
-		return -EACCES;
+	if (
+		(strncmp (path, "/shotcut-", 9) == 0) ||
+		(strncmp (path, "/project_shotcut.mlt.", 21) == 0)
+	) return -EACCES;
 /*
 	if (strncmp (path, "/shotcut-", 9) == 0) {
 		fi->fh = 0;
