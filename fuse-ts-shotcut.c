@@ -126,12 +126,7 @@ int find_cutmarks_in_shotcut_project_file (int *inframe, int *outframe, int *bla
 		debug_printf ("find_cutmarks: file has not been written to.\n");
 		return 100;
 	}
-/*
-  in XPATH, I would look for 
-    producer[@id='producer0']/@in
-  and
-    producer[@id='producer0']/@out
-*/
+
 	mxml_node_t *xmldoc;
 	char* temp = filebuffer__read_all_to_cstring(sc_writebuffer);
 	xmldoc = mxmlLoadString (NULL, temp, MXML_TEXT_CALLBACK);
@@ -140,12 +135,16 @@ int find_cutmarks_in_shotcut_project_file (int *inframe, int *outframe, int *bla
 		debug_printf ("find_cutmarks: no valid XML!\n");
 		return 1;
 	}
+
 	mxml_node_t *node;
 	node = mxmlFindElement (xmldoc, xmldoc, "producer", "id", "producer0", MXML_DESCEND);
 	if (NULL == node) {
-		debug_printf ("find_cutmarks: node with id 'producer0' not found!\n");
-		mxmlRelease (xmldoc);
-		return 2;
+		node = mxmlFindElement (xmldoc, xmldoc, "chain", "id", "chain0", MXML_DESCEND);
+		if (NULL == node) {
+			debug_printf ("find_cutmarks: node with id 'producer0' or 'chain0' not found!\n");
+			mxmlRelease (xmldoc);
+			return 2;
+		}
 	}
 
 	int blank = 0;
