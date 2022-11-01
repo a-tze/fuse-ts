@@ -36,7 +36,7 @@ filebuffer_t* get_shotcut_project_file_cache (const char *filename, int num_fram
 	if (sc_project_file_cache == NULL) sc_project_file_cache = filebuffer__new();
 	char* temp = (char *) malloc (size);
 	CHECK_OOM(temp);
-	int len = snprintf (temp, size - 1, sc_template, inframe, num_frames, num_frames - 1, outbyte, filename, _outframe, blanklen);
+	int len = snprintf (temp, size - 1, sc_template, inframe, num_frames, num_frames - 1, outbyte, filename, _outframe, blanklen, frames_per_second);
 	if (len >= size) err(124, "%s: size fail when generating project file\n", __FUNCTION__);
 	debug_printf ("get_shotcut_project_file: result has a size of: %d\n", len);
 	filebuffer__write(sc_project_file_cache, temp, len, 0);
@@ -212,12 +212,12 @@ int find_cutmarks_in_shotcut_project_file (int *inframe, int *outframe, int *bla
 
 //   %1$d => inframe,  %2$d => frames, %3$d => frames - 1 
 //   %4$(PRI64d) => filesize, %5$s => filename without path
-//   %6$d => outframe
+//   %6$d => outframe, %8$d => fps
 
 static const char *sc_template =
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
 "<mlt LC_NUMERIC=\"C\" version=\"0.9.9\" title=\"FUSE-TS\" parent=\"producer0\" in=\"%1$d\" out=\"%6$d\">\n"
-"  <profile description=\"automatic\" />\n"
+"  <profile description=\"automatic\" frame_rate_num=\"%8$d\" frame_rate_den=\"1\"/>\n"
 "  <producer id=\"producer0\" title=\"Source Clip\" in=\"%1$d\" out=\"%6$d\">\n"
 "    <property name=\"mlt_type\">mlt_producer</property>\n"
 "    <property name=\"length\">%2$d</property>\n"
@@ -235,7 +235,7 @@ static const char *sc_template =
 "  <!--\n"
 "  %1$d => inframe,  %2$d => frames, %3$d => frames - 1\n"
 "  %4$" PRId64 " => filesize, %5$s => filename without path\n"
-"  %6$d => outframe %7$d => blanklen\n"
+"  %6$d => outframe %7$d => blanklen %8$d => fps\n"
 "  -->\n"
 "</mlt>\n";
 
