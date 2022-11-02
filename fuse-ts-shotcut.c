@@ -216,7 +216,7 @@ int find_cutmarks_in_shotcut_project_file (int *inframe, int *outframe, int *bla
 
 static const char *sc_template =
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-"<mlt LC_NUMERIC=\"C\" version=\"0.9.9\" title=\"FUSE-TS\" parent=\"producer0\" in=\"%1$d\" out=\"%6$d\">\n"
+"<mlt LC_NUMERIC=\"C\" version=\"6.25.0\" title=\"FUSE-TS\" parent=\"producer0\" in=\"%1$d\" out=\"%6$d\">\n"
 "  <profile description=\"automatic\" frame_rate_num=\"%8$d\" frame_rate_den=\"1\"/>\n"
 "  <producer id=\"producer0\" title=\"Source Clip\" in=\"%1$d\" out=\"%6$d\">\n"
 "    <property name=\"mlt_type\">mlt_producer</property>\n"
