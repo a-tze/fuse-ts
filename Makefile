@@ -1,7 +1,7 @@
 DEBUGopts = -g -O0 -fno-inline-functions -DDEBUG
 NDEBUGopts = $(EXTRA_CFLAGS) -O2 -DNDEBUG
 CFLAGS = -Wall -c $(DEBUG) -D_FILE_OFFSET_BITS=64 -DFUSE_USE_VERSION=25
-LFLAGS = -Wall -lmxml -lfuse $(DEBUG)
+LFLAGS = -Wall -lmxml -lfuse $(DEBUG) $(EXTRA_LFLAGS)
 CC = gcc
 DEBUG=$(NDEBUGopts)
 
