@@ -359,7 +359,7 @@ sourcefile_t *get_sourcefile_for_position (sourcefile_t * list, off_t pos) {
 
 off_t get_filesize (char *name) {
 	struct stat st;
-	memset (&st, 0, sizeof (stat));
+	memset (&st, 0, sizeof(struct stat));
 	stat (name, &st);
 	off_t size = st.st_size;
 	return size;
