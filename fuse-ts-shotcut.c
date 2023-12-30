@@ -37,7 +37,7 @@ filebuffer_t* get_shotcut_project_file_cache (const char *filename, int num_fram
 	char* temp = (char *) malloc (size);
 	CHECK_OOM(temp);
 	int len = snprintf (temp, size - 1, sc_template, inframe, num_frames, num_frames - 1, outbyte, filename, _outframe, blanklen, frames_per_second);
-	if (len >= size) err(124, "%s: size fail when generating project file\n", __FUNCTION__);
+	if (len >= size) err(124, "%s: size fail when generating project file\n", __func__);
 	debug_printf ("get_shotcut_project_file: result has a size of: %d\n", len);
 	filebuffer__write(sc_project_file_cache, temp, len, 0);
 	filebuffer__truncate(sc_project_file_cache, len);
