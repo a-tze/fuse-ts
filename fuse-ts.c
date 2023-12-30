@@ -315,6 +315,7 @@ int ts_data_do_read (sourcefile_t * file, char *buf, size_t size, off_t fileoffs
 	//debug_printf("trying to give out %d bytes at position %" PRId64 " of file '%s'\n", size, fileoffset, file->filename);
 	if (file->fhandle == NULL) {
 		file->fhandle = fopen (file->filename, "r");
+		pthread_mutex_init(&file->filelock, NULL);
 		if (file->fhandle == NULL) {
 			// the file is not accessible. what now? panic!
 			error_printf ("ERROR: can not open file '%s' for reading!\n", file->filename);
@@ -325,6 +326,7 @@ int ts_data_do_read (sourcefile_t * file, char *buf, size_t size, off_t fileoffs
 	assert (file->fhandle != NULL);
 	FILE *f = file->fhandle;
 	if (slidemode == 0) {
+		pthread_mutex_lock(&file->filelock);
 		fseek (f, fileoffset, SEEK_SET);
 		size_t rsize = fread (buf, 1, size, f);
 		size_t rsize_cum = rsize;
@@ -334,11 +336,13 @@ int ts_data_do_read (sourcefile_t * file, char *buf, size_t size, off_t fileoffs
 			rsize = fread (buf + rsize_cum, 1, file->filesize - rsize_cum, f);
 			if (rsize <= 0) {
 				error_printf ("ERROR: file could not be read completely: '%s' !\n", file->filename);
+				pthread_mutex_unlock(&file->filelock);
 				return rsize_cum;
 			}
 			debug_printf ("successfully read %d bytes of file '%s'\n", rsize, file->filename);
 			rsize_cum += rsize;
 		} 
+		pthread_mutex_unlock(&file->filelock);
 		return rsize_cum;
 	} else {
 		void * framebuf = malloc(file->filesize);

@@ -61,6 +61,7 @@ typedef struct _sourcefile {
   int refcnt;
   off_t filesize; // size of this piece in bytes
   off_t totalsize; // cumulation of bytes including this piece
+  pthread_mutex_t filelock;
 } sourcefile_t;
 
 typedef struct _fileposhint {
