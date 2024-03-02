@@ -33,4 +33,4 @@ extern int file_exists (const char * filename);
 ///////////////// memory stuff  ///////////////
 
 #include <err.h>
-#define CHECK_OOM(pointer) if (pointer == NULL) err (123, "Out of memory! (function: %s) Exiting!\n", __FUNCTION__);
+#define CHECK_OOM(pointer) if (pointer == NULL) err (123, "Out of memory! (function: %s) Exiting!\n", __func__);

@@ -1,6 +1,6 @@
 #ifdef DEBUG
 extern void debug_printf(const char * text, ...);
-#define DEPRECATED(...) debug_printf("XXX use of DEPRECATED function %s\n", __FUNCTION__);
+#define DEPRECATED(...) debug_printf("XXX use of DEPRECATED function %s\n", __func__);
 #else
 #define debug_printf(...)
 #define DEPRECATED(...)

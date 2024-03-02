@@ -147,7 +147,7 @@ size_t filebuffer__contentsize (filebuffer_t* self) {
 }
 
 char* filebuffer__read_all_to_cstring (filebuffer_t* self) {
-	debug_printf("%s on %p\n", __FUNCTION__, self);
+	debug_printf("%s on %p\n", __func__, self);
 	if (self == NULL) {
 		error_printf ("reading complete buffer failed: NULL pointer!\n");
 		return NULL;

@@ -27,7 +27,7 @@ static filebuffer_t* kl_writebuffer = NULL;
 filebuffer_t* get_kdenlive_project_file_cache (const char *filename, int num_frames, int blanklen) {
 	pthread_mutex_lock (&kl_cachemutex);
 	if ((kl_project_file_cache != NULL) && (kl_project_file_cache_inframe == inframe) && (kl_project_file_cache_outframe == outframe) && (kl_project_file_cache_blanklen == blanklen)) {
-		debug_printf ("%s: cache hit (%p)\n", __FUNCTION__, kl_project_file_cache);
+		debug_printf ("%s: cache hit (%p)\n", __func__, kl_project_file_cache);
 		pthread_mutex_unlock (&kl_cachemutex);
 		return kl_project_file_cache;
 	}
@@ -40,8 +40,8 @@ filebuffer_t* get_kdenlive_project_file_cache (const char *filename, int num_fra
 	char* temp = (char *) malloc (size);
 	CHECK_OOM(temp);
 	int len = snprintf (temp, size - 1, kl_template, _inframe, num_frames, num_frames - 1, outbyte, t, _outframe, blanklen, frames_per_second, width, height);
-	if (len >= size) err(124, "%s: size fail when generating project file\n", __FUNCTION__);
-	debug_printf ("%s: result has a size of: %d\n", __FUNCTION__, len);
+	if (len >= size) err(124, "%s: size fail when generating project file\n", __func__);
+	debug_printf ("%s: result has a size of: %d\n", __func__, len);
 	filebuffer__write(kl_project_file_cache, temp, len, 0);
 	filebuffer__truncate(kl_project_file_cache, len);
 	kl_project_file_cache_inframe = inframe;
@@ -56,14 +56,14 @@ filebuffer_t* get_kdenlive_project_file_cache (const char *filename, int num_fra
 size_t get_kdenlive_project_file_size (const char *filename, int num_frames, int blanklen) {
 	filebuffer_t* fb = get_kdenlive_project_file_cache (filename, num_frames, blanklen);
 	if (fb == NULL) return -EIO;
-	debug_printf ("%s: result is: %d\n", __FUNCTION__, filebuffer__contentsize(fb));
+	debug_printf ("%s: result is: %d\n", __func__, filebuffer__contentsize(fb));
 	return filebuffer__contentsize(fb);
 }
 
 void init_kdenlive_project_file () {
 	pthread_mutex_lock (&kl_cachemutex);
 	if (kl_project_file_cache != NULL) {
-		debug_printf ("%s: freeing cache %p\n", __FUNCTION__, kl_project_file_cache);
+		debug_printf ("%s: freeing cache %p\n", __func__, kl_project_file_cache);
 		filebuffer__destroy (kl_project_file_cache);
 		kl_project_file_cache = NULL;
 	}
@@ -78,7 +78,7 @@ size_t kdenlive_read (const char *path, char *buf, size_t size, off_t offset, co
 }
 
 void open_kdenlive_project_file (const char *movie_path, int frames, int blanklen, int truncate) {
-	debug_printf ("%s\n", __FUNCTION__);
+	debug_printf ("%s\n", __func__);
 	kl_project_file_refcount++;
 	if (kl_project_file_refcount > 1) return;
 	if (kl_writebuffer == NULL) {
