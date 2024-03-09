@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <math.h>
 #include <dirent.h>
+#include <pthread.h>
 #include <assert.h>
 #include <inttypes.h>
 #include <sys/types.h>
@@ -53,6 +54,7 @@ sourcefile_t *new_file_entry_absolute_path (const char *filename) {
 	ret->tailhelper = NULL;
 	ret->fhandle = NULL;
 	ret->refcnt = 0;
+	pthread_mutex_init(&ret->filelock, NULL);
 	return ret;
 }
 
@@ -72,6 +74,7 @@ void destroy_file_entry (sourcefile_t * node) {
 	if (node->filename != NULL) {
 		free (node->filename);
 	}
+	pthread_mutex_destroy(&node->filelock);
 	free (node);
 }
 
