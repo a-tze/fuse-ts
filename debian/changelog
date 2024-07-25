@@ -1,3 +1,10 @@
+fuse-ts (2024.07.26.1) stable; urgency=low
+
+  * build: be pedantic
+  * bugfix: fixed issues with multi threaded file access
+
+ -- Lukas Schauer <lukas2511@c3voc.de>  Fri, 26 Jul 2024 01:17:00 +0200
+
 fuse-ts (2023.09.18.1) stable; urgency=low
 
   * build: add $(EXTRA_LFLAGS) to Makefile
