@@ -1,3 +1,12 @@
+fuse-ts (2024.10.03.1) stable; urgency=medium
+  [tu500]
+  * change: use newer KDEnlive project file format
+    - minimum required KDEnlive version is now 23.08.*
+    - frame positions are now rendered as timestrings
+    - separate video and audio tracks in project file
+
+ -- Matthias Hunstock <atze@fem.tu-ilmenau.de>  Thu, 03 Oct 2024 17:23:11 +0000
+
 fuse-ts (2024.08.01.1) stable; urgency=medium
 
   * bugfix: fix threading issues with shared usage of file descriptors
