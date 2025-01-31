@@ -351,7 +351,7 @@ int ts_data_do_read (sourcefile_t * file, char *buf, size_t size, off_t fileoffs
 		pthread_mutex_unlock(&file->filelock);
 		return rsize_cum;
 	} else {
-		void * framebuf = malloc(file->filesize);
+		uint8_t * framebuf = malloc(file->filesize);
 		if (framebuf == NULL) {
 			error_printf ("ERROR: cannot allocate memory\n");
 			return 0;

@@ -1,6 +1,7 @@
 fuse-ts (2025.01.31.1) stable; urgency=low
 
   * feature: growing mode, restores old behaviour of not protecting state of virtual file
+  * package: raise compat level to 10
 
  -- Matthias Hunstock <atze@fem.tu-ilmenau.de>  Fri, 31 Jan 2025 17:23:14 +0100
 
