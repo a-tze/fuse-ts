@@ -37,6 +37,7 @@ void print_usage() {
 	fprintf(stdout, "\t\tintro=/foo/bar/x.dv\tintro file (optional, relative to capture dir)\n");
 	fprintf(stdout, "\t\toutro=/foo/bar/x.dv\toutro file (optional, relative to capture dir)\n");
 	fprintf(stdout, "\t\tslides\t\t\tslidemode, interpret filenames as timestamps (optional)\n");
+	fprintf(stdout, "\t\tgrowing\t\t\tgrowing mode, do not protect virtual file state of open handles when rebuilding (optional)\n");
 	fprintf(stdout, "\t\tfps=[1..2^31]\t\tset different fps (optional, default is 25)\n");
 	fprintf(stdout, "\t\twidth=[1..2^31]\t\tset width for KDEnlive project (optional, default is 1920)\n");
 	fprintf(stdout, "\t\theight=[1..2^31]\tset height for KDEnlive project (optional, default is 1080)\n");
@@ -72,6 +73,10 @@ void parse_opts(int * p_argc, char*** p_argv) {
 
 		if (strncmp(opt, "p=", 2) == 0) {
 			prefix = dupe_str(opt + 2);
+			continue;
+		}
+		if (strncmp(opt, "growing", 7) == 0) {
+			growing_mode = 1;
 			continue;
 		}
 		if (strncmp(opt, "slides", 6) == 0) {

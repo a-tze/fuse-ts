@@ -1,3 +1,9 @@
+fuse-ts (2025.01.31.1) stable; urgency=low
+
+  * feature: growing mode, restores old behaviour of not protecting state of virtual file
+
+ -- Matthias Hunstock <atze@fem.tu-ilmenau.de>  Fri, 31 Jan 2025 17:23:14 +0100
+
 fuse-ts (2024.10.03.1) stable; urgency=medium
   [tu500]
   * change: use newer KDEnlive project file format
