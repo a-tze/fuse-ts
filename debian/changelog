@@ -1,3 +1,9 @@
+fuse-ts (2025.04.25.1) stable; urgency=low
+
+  * feature: support libmxml 4.x
+
+ -- Matthias Hunstock <atze@fem.tu-ilmenau.de>  Fri, 25 Apr 2025 11:33:41 +0200
+
 fuse-ts (2025.01.31.1) stable; urgency=low
 
   * feature: growing mode, restores old behaviour of not protecting state of virtual file

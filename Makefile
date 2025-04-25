@@ -1,7 +1,15 @@
+MXML_VERSION := \
+  $(shell \
+  if `pkg-config --exists mxml4` ; then echo '4'; \
+  else echo ''; \
+  fi \
+  )
+MXML_CFLAGS := $(shell pkg-config --cflags mxml$(MXML_VERSION))
+MXML_LIBS := $(shell pkg-config --libs mxml$(MXML_VERSION))
 DEBUGopts = -g -O0 -fno-inline-functions -DDEBUG
 NDEBUGopts = $(EXTRA_CFLAGS) -O2 -DNDEBUG
-CFLAGS = -Wall -g -Wpedantic -c $(DEBUG) -D_FILE_OFFSET_BITS=64 -DFUSE_USE_VERSION=25
-LFLAGS = -Wall -g -Wpedantic -lmxml -lfuse $(DEBUG) $(EXTRA_LFLAGS)
+CFLAGS = -Wall -g -Wpedantic -c $(DEBUG) -D_FILE_OFFSET_BITS=64 -DFUSE_USE_VERSION=25 $(MXML_CFLAGS)
+LFLAGS = -Wall -g -Wpedantic -lmxml -lfuse $(DEBUG) $(EXTRA_LFLAGS) $(MXML_LFLAGS)
 CC = gcc
 DEBUG=$(NDEBUGopts)
 

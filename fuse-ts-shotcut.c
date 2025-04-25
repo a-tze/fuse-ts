@@ -10,6 +10,7 @@
 #include "fuse-ts.h"
 #include "fuse-ts-tools.h"
 #include "fuse-ts-debug.h"
+#include "fuse-ts-xml.h"
 #include "fuse-ts-shotcut.h"
 
 const char *shotcut_path = "/project_shotcut.mlt";
@@ -129,7 +130,7 @@ int find_cutmarks_in_shotcut_project_file (int *inframe, int *outframe, int *bla
 
 	mxml_node_t *xmldoc;
 	char* temp = filebuffer__read_all_to_cstring(sc_writebuffer);
-	xmldoc = mxmlLoadString (NULL, temp, MXML_TEXT_CALLBACK);
+	xmldoc = XMLLOAD(temp);
 	free(temp);
 	if (NULL == xmldoc) {
 		debug_printf ("find_cutmarks: no valid XML!\n");
@@ -137,9 +138,9 @@ int find_cutmarks_in_shotcut_project_file (int *inframe, int *outframe, int *bla
 	}
 
 	mxml_node_t *node;
-	node = mxmlFindElement (xmldoc, xmldoc, "producer", "id", "producer0", MXML_DESCEND);
+	node = mxmlFindElement (xmldoc, xmldoc, "producer", "id", "producer0", MXML_DESCEND_ALL);
 	if (NULL == node) {
-		node = mxmlFindElement (xmldoc, xmldoc, "chain", "id", "chain0", MXML_DESCEND);
+		node = mxmlFindElement (xmldoc, xmldoc, "chain", "id", "chain0", MXML_DESCEND_ALL);
 		if (NULL == node) {
 			debug_printf ("find_cutmarks: node with id 'producer0' or 'chain0' not found!\n");
 			mxmlRelease (xmldoc);

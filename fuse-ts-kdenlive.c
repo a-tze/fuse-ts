@@ -11,6 +11,7 @@
 #include "fuse-ts.h"
 #include "fuse-ts-tools.h"
 #include "fuse-ts-debug.h"
+#include "fuse-ts-xml.h"
 #include "fuse-ts-kdenlive.h"
 
 char *kdenlive_path = "/project.kdenlive";
@@ -207,14 +208,14 @@ int find_cutmarks_in_kdenlive_project_file (int *inframe, int *outframe, int *bl
 */
 	mxml_node_t *xmldoc;
 	char* temp = filebuffer__read_all_to_cstring(kl_writebuffer);
-	xmldoc = mxmlLoadString (NULL, temp, MXML_TEXT_CALLBACK);
+	xmldoc = XMLLOAD(temp);
 	free(temp);
 	if (NULL == xmldoc) {
 		debug_printf ("find_cutmarks: no valid XML!\n");
 		return 1;
 	}
 	mxml_node_t *node, *subnode;
-	node = mxmlFindElement (xmldoc, xmldoc, "playlist", "id", "playlist0", MXML_DESCEND);
+	node = mxmlFindElement (xmldoc, xmldoc, "playlist", "id", "playlist0", MXML_DESCEND_ALL);
 	if (NULL == node) {
 		debug_printf ("find_cutmarks: node with id 'playlist0' not found!\n");
 		mxmlRelease (xmldoc);
@@ -222,7 +223,7 @@ int find_cutmarks_in_kdenlive_project_file (int *inframe, int *outframe, int *bl
 	}
 
 	int blank = 0;
-	subnode = mxmlFindElement (node, node, "blank", NULL, NULL, MXML_DESCEND);
+	subnode = mxmlFindElement (node, node, "blank", NULL, NULL, MXML_DESCEND_ALL);
 	if (NULL == subnode) {
 		debug_printf ("find_cutmarks: node 'blank' not found - assuming 0!\n");
 	} else {
@@ -240,7 +241,7 @@ int find_cutmarks_in_kdenlive_project_file (int *inframe, int *outframe, int *bl
 		}
 	}
 
-	node = mxmlFindElement (node, node, "entry", "producer", "chain0", MXML_DESCEND);
+	node = mxmlFindElement (node, node, "entry", "producer", "chain0", MXML_DESCEND_ALL);
 	if (NULL == node) {
 		debug_printf ("find_cutmarks: node 'entry' in playlist not found!\n");
 		mxmlRelease (xmldoc);
