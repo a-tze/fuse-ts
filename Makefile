@@ -9,7 +9,7 @@ MXML_LIBS := $(shell pkg-config --libs mxml$(MXML_VERSION))
 DEBUGopts = -g -O0 -fno-inline-functions -DDEBUG
 NDEBUGopts = $(EXTRA_CFLAGS) -O2 -DNDEBUG
 CFLAGS = -Wall -g -Wpedantic -c $(DEBUG) -D_FILE_OFFSET_BITS=64 -DFUSE_USE_VERSION=25 $(MXML_CFLAGS)
-LFLAGS = -Wall -g -Wpedantic -lmxml -lfuse $(DEBUG) $(EXTRA_LFLAGS) $(MXML_LFLAGS)
+LFLAGS = -Wall -g -Wpedantic -lfuse $(DEBUG) $(EXTRA_LFLAGS) $(MXML_LIBS)
 CC = gcc
 DEBUG=$(NDEBUGopts)
 
